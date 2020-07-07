@@ -1,0 +1,149 @@
+---
+title: 'Bootstrap intervals pre-lab: formula'
+author: "Professor McNamara"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+---
+
+## Setup and packages
+
+We use three packages in this course: `Lock5Data`, `mosaic` and `ggformula`. To load a package, you use the `library()` function, wrapped around the name of a package. I've put the code to load one package into the chunk below. Add the other two you need. 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+library(Lock5Data)
+# put in the other two packages you need here
+```
+
+Another piece of setup you may want to do is set the option to remove NA values when you're computing summary statistics. 
+
+```{r}
+options(na.rm = TRUE)
+```
+
+## Loading in data
+
+As usual, we'll load the example data, `GSS_clean.csv`. It should be inside the `data` folder in your RStudio Cloud. We'll use the `read.csv()` function to read in the data. 
+
+```{r data-load}
+GSS <- read.csv("data/GSS_clean.csv")
+```
+
+## Recall: visualization and summary statistics for one quantitative variable
+
+In lab 2, we talked about doing Exploratory Data Analysis (EDA) for one quantitative variable. See if you can create a histogram of the `highest_year_of_school_completed` variable. 
+Hints:
+
+- Plotting functions all start with `gf_`
+- If just making a plot of one variable we use the $~x$ formula
+
+```{r}
+# write code here
+```
+
+Now, try to find the mean of that same variable. The function name is what you would think, and the hint about the formula above applies again.
+
+```{r}
+# write code here
+```
+
+So, the average number of years of school the people in this dataset have completed is 13.7. We might want to give an interval for our estimate, rather than just a point estimate. Enter...
+
+## The bootstrap
+
+The bootstrap is a procedure to "pick yourself up by your bootstraps" and create a sampling distribution when you can't take repeated samples from the population. Instead, we are going to re-sample from our existing sample, and use those new "bootstrap samples" to generate sample statistics. 
+
+We'll use the `resample()` function to do this. By default, the `resample()` function takes samples **with replacement**, which is what we want. Sometimes we'll get many copies of the same observation (person) in our bootstrap sample, and sometimes we won't capture a particular observation at all. By itself, `resample()` doesn't do much:
+
+```{r}
+resample(GSS)
+```
+
+That's because it needs to be told how many times to **do** the resampling. Let's start with doing it just once.
+
+```{r}
+bootstrap_sample <- do(1) * resample(GSS)
+```
+
+Look at the `bootstrap_sample` object in your Environment. How many observations does it have? How many variables?
+
+
+
+
+We could make a histogram of that sample. 
+
+```{r}
+
+```
+
+Does this look similar to the distribution of the original data? What is different? 
+
+Does your histogram look the same as mine?
+
+## Setting a seed
+
+Because bootstrap samples are random, they look different every time we do them. This is good, because they are like random samples from the population, but it can be frustrating when you "knit" your document and the results change. To fix that, we are going to "set the seed" for the randomness. We use the `set.seed()` function, and then put our favorite number inside. I often use 42, or the day's date (03192020). It doesn't matter what you pick. 
+
+```{r}
+set.seed(42)
+```
+
+Setting the seed means that the psuedo-random-number-generator in R will always start off at the same point, and so your "randomness" will be predictable. 
+
+```{r}
+set.seed(42)
+bootstrap_sample <- do(1) * resample(GSS)
+gf_histogram(~highest_year_of_school_completed, data = bootstrap_sample, binwidth = 2)
+bootstrap_sample <- do(1) * resample(GSS)
+gf_histogram(~highest_year_of_school_completed, data = bootstrap_sample, binwidth = 2)
+set.seed(42)
+bootstrap_sample <- do(1) * resample(GSS)
+gf_histogram(~highest_year_of_school_completed, data = bootstrap_sample, binwidth = 2)
+```
+
+## Bootstrap distribution
+
+Just one bootstrap sample isn't that interesting. In order to make an interval, we need to repeat this process many times, where many usually means at least 1,000. We don't want to store 1,000 full datasets, so it's easier to stick the `resample()` command inside a summary statistic command.  
+
+Let's do that here.
+
+```{r}
+boot <- do(1000) * mean(~highest_year_of_school_completed, data = resample(GSS))
+```
+
+How many observations does that dataset have? How many variables? 
+
+
+
+
+Let's look at the distribution of that statistic. 
+```{r}
+gf_histogram(~mean, data = boot)
+```
+
+Does this look like our original histograms?
+
+What is the mean of that distribution?
+
+```{r}
+
+```
+
+Does that make sense?
+
+
+
+
+## Bootstrap intervals
+
+We could use the 95\% rule to eyeball a confidence interval that contained the middle 95\% of the distribution. My guess would be around (13.65, 13.85). But, we'd like to be more precise. The `confint()` function will help us with this.
+
+```{r}
+confint(boot)
+```
+
+How do we interpret this output?
+

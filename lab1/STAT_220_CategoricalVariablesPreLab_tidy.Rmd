@@ -1,0 +1,137 @@
+---
+title: 'Categorical variables pre-lab: tidy'
+author: "Professor McNamara"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+---
+
+## Setup and packages
+
+We use three packages in this course: `Lock5Data`, `tidyverse` and `infer`. To load a package, you use the `library()` function, wrapped around the name of a package. I've put the code to load one package into the chunk below. Add the other two you need. 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+library(Lock5Data)
+# put in the other two packages you need here
+```
+
+## Loading in data
+
+Let's load the example dataset I have for this course, `GSS_clean.csv`. It should be inside the `data` folder in your RStudio Cloud. We'll use the `read_csv()` function to read in the data. Here is a chunk where we will put the data loading code. 
+
+```{r data-load}
+# this is where data-loading code goes
+```
+
+## Categorical variables
+
+Categorical variables are those that describe a set of categories (e.g., "first year", "sophomore", "junior", "senior"), rather than a continuous numeric range. 
+
+What variables in this dataset are categorical? How can you tell?
+
+## Visualization for categorical variables
+
+There are two main ways to visualize one categorical variable: **bar charts**, and pie charts. We're going to focus on bar charts here, because they are easier to create in R. 
+
+When we generate graphics in the tidy R syntax, we use a main function called `ggplot()` (short for Grammar of Graphics plot, a reference to a famous book about data visualization). That function can take many "arguments", which are the things you put inside the parentheses. For example, if you were thinking about the algebra function $f(x)$, we would say the function is $f$, and the argument is $x$. In the case of `ggplot()`, the most important argument is the name of the dataset. Try running `ggplot(GSS)` and see what the result is. 
+
+```{r}
+# write code here
+```
+
+If we want an interesting plot, we need to use the `+` operator to add on a "geometric object" (or `geom_` for short) that tells R what kind of plot we want. In this case, we want a `geom_bar()` because we are making a bar chart. `geom_bar()` **also** takes arguments, and they have to be specified in a particular way. We use the `aes()` function (short for "aesthetics") and tell R how to map between a variable in our dataset and a variable in a plot. Here's an example:
+
+```{r}
+ggplot(GSS) + geom_bar(aes(x = marital_status))
+```
+
+It's important to get the syntax exactly right, or R will throw an error. (R is picky about capitalization, but not about spaces.)
+
+Try making your own bar chart of the `labor_force_status`. 
+
+```{r}
+# write code here
+```
+
+### Two categorical variables
+If we want, we can make a barchart showing **two** categorical variables. To do this, we add another argument to our `aes()` function. We will tell R to fill in the `marital_status` bars with color, according to the `born_in_us` variable. This makes a segmented or stacked barchart. 
+
+```{r}
+ggplot(GSS) + geom_bar(aes(x = marital_status, fill = born_in_us))
+```
+
+We can also make this barchart a side-by-side barchart by providing the `position` argument.
+
+```{r}
+ggplot(GSS) + geom_bar(aes(x = marital_status, fill = born_in_us), position = "dodge")
+```
+
+If we forgot what the argument was to make a side-by-side barchart, we could use R's built-in help functionality to assist us. 
+
+```{r}
+help(geom_bar)
+```
+
+Try making a barchart that shows both the `govt_or_private_employee` and `self_emp_or_works_for_somebody` variables. 
+
+```{r}
+# write code here
+```
+
+## Summary statistics for categorical variables
+
+The other part of Exploratory Data Analysis (EDA) is making summary statistics. For a categorical variable, this means making frequency tables and relative frequency tables. Let's explore how to do that. 
+
+For this piece, we will be using an operator called "the pipe", which is written as `%>%` (if you know other programming languages, you may think of `|` as the pipe, but that gets used to mean "or" in R). I think of the pipe as an arrow that points in the direction my data is flowing through a data pipeline. 
+
+We will use the pipe to string together three main R functions:
+
+- `summarize()`, which summarizes data (going from many rows down to just one or several)
+- `mutate()`, which makes new variables in our dataset (sticking on one more column)
+- `group_by()`, which works especially well with `summarize()` to group data for operations
+
+These functions can be mixed and matched in many orders to create a multitude of data science products. 
+
+Let's start with a short data pipeline.
+
+```{r}
+GSS %>%
+  summarize(n = n())
+```
+
+What does this code tell us?
+
+We can add another piece to the pipeline to make it more interesting.
+
+```{r}
+GSS %>%
+  # another step
+  summarize(n = n())
+```
+
+What does this code give us?
+
+Finally, we might want to add one more piece to the pipeline to create a relative frequency table,
+
+```{r}
+GSS %>%
+  # another step
+  summarize(n = n()) %>%
+  # one final step
+```
+
+### Two categorical variables
+
+We can extend this to two categorical variables by adding a second variable into our `group_by()` code. Let's make a relative frequency table showing the relationship between `marital_status` and `general_happiness`. 
+
+```{r}
+GSS %>%
+  group_by(marital_status) %>% # change one thing on this line
+  summarize(n = n()) %>%
+  mutate(prop = n/sum(n))
+```
+
+What happens if you switch the order of the variables in the `group_by()`?

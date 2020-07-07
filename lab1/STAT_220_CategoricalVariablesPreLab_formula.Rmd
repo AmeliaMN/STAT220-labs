@@ -1,0 +1,109 @@
+---
+title: 'Categorical variables pre-lab: formula'
+author: "Professor McNamara"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+---
+
+## Setup and packages
+
+We use three packages in this course: `Lock5Data`, `mosaic` and `ggformula`. To load a package, you use the `library()` function, wrapped around the name of a package. I've put the code to load one package into the chunk below. Add the other two you need. 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+library(Lock5Data)
+# put in the other two packages you need here
+```
+
+## Loading in data
+
+Let's load the example dataset I have for this course, `GSS_clean.csv`. It should be inside the `data` folder in your RStudio Cloud. We'll use the `read.csv()` function to read in the data. Here is a chunk where we will put the data loading code. 
+
+```{r data-load}
+# this is where data-loading code goes
+```
+
+## Categorical variables
+
+Categorical variables are those that describe a set of categories (e.g., "first year", "sophomore", "junior", "senior"), rather than a continuous numeric range. 
+
+What variables in this dataset are categorical? How can you tell?
+
+## Visualization for categorical variables
+
+There are two main ways to visualize one categorical variable: **bar charts**, and pie charts. We're going to focus on bar charts here, because they are easier to create in R. 
+
+When we generate graphics in the formula R syntax, we use functions that begin with `gf_`. This stands for graphics formula (I think). After the underscore, there is the name of the plot we want to make. Because we want to make a barchart, we will use the `gf_bar()` function. This function, like all functions in formula syntax, wants a "formula" as it's first "argument." Let's talk about both those terms. 
+
+First, an "argument" to a function is something that you put inside the parentheses. For example, if you were thinking about the algebra function $f(x)$, we would say the function is $f$, and the argument is $x$. In this case, the function is `gf_bar`, and we are going to give it a formula as an argument. 
+
+Generally, formulas are of the format $y~x$. The y is the response variable, then there is a "tilde" (it's in the upper left of your keyboard, above the Tab key), then the explanatory variable(s). If you only have one variable, you don't give a $y$ and instead just give it $~x$. Let's see it in action.
+
+```{r}
+gf_bar(~marital_status, data = GSS)
+```
+
+Since we are only trying to visualize one variable, we use the tilde and then the name of the variable. That is the "formula." The `gf_` functions want another argument as well, which is the dataset where the variable is located. If you don't provide this, the function won't know where to look for `marital_status`. 
+
+It's important to get the syntax exactly right, or R will throw an error. (R is picky about capitalization, but not about spaces.)
+
+Try making your own bar chart of the `labor_force_status`. 
+
+```{r}
+# write code here
+```
+
+### Two categorical variables
+If we want, we can make a barchart showing **two** categorical variables. To do this, we add another argument to our `gf_bar` function. We will tell R to fill in the `marital_status` bars with color, according to the `born_in_us` variable. This makes a segmented or stacked barchart. 
+
+```{r}
+gf_bar(~marital_status, fill = ~born_in_us, data = GSS)
+```
+
+Notice that again, when we refer to the variable `born_in_us`, we have to use the tilde to make it a formula. 
+
+We can also make this barchart a side-by-side barchart by providing the `position` argument.
+
+```{r}
+gf_bar(~marital_status, fill = ~born_in_us, data = GSS, position = "dodge")
+```
+
+Try making a barchart that shows both the `govt_or_private_employee` and `self_emp_or_works_for_somebody` variables. 
+
+```{r}
+# write code here
+```
+
+## Summary statistics for categorical variables
+
+The other part of Exploratory Data Analysis (EDA) is making summary statistics. For a categorical variable, this means making frequency tables and relative frequency tables. Let's explore how to do that. 
+
+Again, we will be using formula notation. In this case, we will use the `tally()` function. Its arguments are almost the same as `gf_bar()`. 
+
+```{r}
+tally(~marital_status, data = GSS)
+```
+
+What does this code tell us?
+
+We can add another argument to make it more interesting.
+
+```{r}
+tally(~marital_status, data = GSS, format = "proportion")
+```
+
+What does this code give us?
+
+
+### Two categorical variables
+
+We can extend this to two categorical variables by adding a second variable into our code. Let's make a relative frequency table showing the relationship between `marital_status` and `general_happiness`. 
+
+```{r}
+tally(marital_status ~ general_happiness, data = GSS, format = "proportion")
+```
+
+What happens if you switch the order of the variables in the formula?

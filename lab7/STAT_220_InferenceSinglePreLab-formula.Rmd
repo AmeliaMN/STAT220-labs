@@ -1,0 +1,184 @@
+---
+title: 'Inference for a single sample pre-lab: formula'
+author: "Professor McNamara"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+---
+
+## Setup and packages
+
+We use three packages in this course: `Lock5Data`, `mosaic` and `ggformula`. To load a package, you use the `library()` function, wrapped around the name of a package. I've put the code to load one package into the chunk below. Add the other two you need. 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+library(Lock5Data)
+# put in the other two packages you need here
+```
+
+Another piece of setup you may want to do is set the option to remove NA values when you're computing summary statistics. 
+
+```{r}
+options(na.rm = TRUE)
+```
+
+## Loading in data
+
+As usual, we'll load the example data, `GSS_clean.csv`. It should be inside the `data` folder in your RStudio Cloud. We'll use the `read.csv()` function to read in the data. 
+
+```{r data-load}
+GSS <- read.csv("data/GSS_clean.csv")
+```
+
+## Inference
+
+So far, we've done inference using simulation methods (lab 4 was about the bootstrap and lab 5 was about randomization). Now, we're going to do inference using distributional approximations. 
+
+We'll cover two particular parameters:
+
+- a single proportion
+- a single mean
+
+When we're doing inference about a single proportion, we approximate using the standard normal distribution, but when we're doing inference about a mean we approximate with the student's t distribution. Either way, we need to know a formula to approximate the standard error. Let's review those:
+
+For one proportion, in a confidence interval
+$$
+SE_{\hat{p}} = \sqrt{\frac{\hat{p}(1-\hat{p})}{n}}
+$$
+
+For one proportion, in a hypothesis test
+
+$$
+SE_{p_0}=\sqrt{\frac{p_0(1-p_0)}{n}}
+$$
+
+For one mean, we get to use the same standard error calculation in both a confidence interval and a hypothesis test,
+
+$$
+SE_{\bar{x}}=\frac{s}{\sqrt{n}}
+$$
+
+## One proportion
+
+Let's practice doing some inference for a single proportion. We'll start with a confidence interval. We'll consider the proportion of people who are self-employed. We can compute it using `tally()`, which we learned about way back in lab 1. See if you can remember how to compute the sample proportion.
+
+```{r}
+
+```
+
+
+Okay, now what if we wanted to compute the standard error? We could refer to our formula,
+
+$$
+SE_{\hat{p}} = \sqrt{\frac{\hat{p}(1-\hat{p})}{n}}
+$$
+
+and use R as a calculator
+
+```{r}
+
+```
+
+To compute a confidence interval, we need one more thing, which is a critical value. In the case of a proportion, this will be a critical z-value, which you might have memorized (it's 1.96 for a 95\% confidence interval) or you may need to compute. Let's check to make sure I'm right about this 1.96 thing.
+
+```{r}
+qnorm(0.975)
+```
+
+Why did I use 0.975?
+
+Now, we can compute our confidence interval by hand:
+
+```{r}
+0.1 - 1.96 * 0.006
+0.1 + 1.96 * 0.006
+```
+
+We could also ask R to help us out,
+
+```{r}
+prop.test(~self_emp_or_works_for_somebody, data = GSS)
+```
+
+The same thing is true for doing a hypothesis test. Say we wanted to know if the proportion of people who are self employed is greater than 10\%. We could write out our null and alternative hypotheses,
+
+
+$$
+H_0: p \leq 0.1 \\
+H_A:p > 0.1
+$$
+
+And then either use R as a calculator or re-use that `prop.test()` function with a couple more arguments.
+
+```{r}
+pnorm()
+```
+
+
+```{r}
+prop.test(~self_emp_or_works_for_somebody, data = GSS, success = "Self-employed", alternative = "greater", p = 0.1)
+```
+
+What do we conclude at the 5\% level? At the 1\% level?
+
+## One mean
+
+Let's consider the same two tasks with a single mean. Here, we'll consider the mean of `number_of_hours_worked_last_week` as our statistic of interest. See if you can compute the point estimate.
+
+```{r}
+
+```
+
+Again, we could compute the standard error by hand,
+
+$$
+SE_{\bar{x}}=\frac{s}{\sqrt{n}}
+$$
+
+(what else do we need to know?)
+
+```{r}
+
+```
+
+And we just need a critical t-value in order to compute a confidence interval. With the t distribution, we can't have critical values memorized, because they depend on degrees of freedom. We'll compute our critical t-value using `qt()`
+
+```{r}
+qt(0.975, df = 2347)
+```
+
+Now, we can compute our confidence interval by hand:
+
+```{r}
+41.28 - 1.96 * 0.3
+41.28 + 1.96 * 0.3
+```
+
+Again, we could also ask R to do it for us,
+
+```{r}
+t.test(~number_of_hours_worked_last_week, data = GSS)
+```
+
+
+The same thing is true for doing a hypothesis test. Say we wanted to know if the true mean number of hours worked in a week is different than 40. We could write out our null and alternative hypotheses,
+
+$$
+H_0: \mu = 40 \\
+H_A: \mu\neq 40
+$$
+
+And, either use R as a calculator or add more arguments to `t.test()`,
+
+```{r}
+pt()
+```
+
+
+```{r}
+t.test(~number_of_hours_worked_last_week, data = GSS, alternative = "two.sided", mu = 40)
+```
+
+What do we conclude at the 5\% level? At the 1\% level?

@@ -1,0 +1,118 @@
+---
+title: 'Inference for many means (ANOVA) - tidy'
+author: "Professor McNamara"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+---
+
+## Setup and packages
+
+We use three packages in this course: `Lock5Data`, `tidyverse` and `infer`. To load a package, you use the `library()` function, wrapped around the name of a package. I've put the code to load one package into the chunk below. Add the other two you need. 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+library(Lock5Data)
+# put in the other two packages you need here
+```
+
+## Loading in data
+
+As always, we'll load the example data, `GSS_clean.csv`. It should be inside the `data` folder in your RStudio Cloud. We'll use the `read_csv()` function to read in the data. 
+
+```{r data-load}
+GSS <- read_csv("data/GSS_clean.csv")
+```
+
+
+## Inference for many means (ANOVA)
+
+We've seen how to do inference for a single mean, and for a difference of means. Now, we'll study how to do inference on **many** means. To do this, we'll use a procedure called ANOVA for ANalysis Of VAriance. We're comparing the variability within groups to the variability between groups. 
+
+When we're doing ANOVA, we just do hypothesis testing (no confidence intervals until after ANOVA), and the hypotheses are always the same:
+
+$$
+H_0: \mu_1 = \mu_2 = \dots = \mu_k \\
+H_A: \text{At least one of the means is different}
+$$
+Let's consider the variables `marital_status` and `number_of_hours_worked_last_week`. Can you make a set of side-by-side boxplots to show the relationship between those two variables?
+
+```{r}
+
+```
+
+How many groups do we have here? 
+
+Okay, so our hypotheses are technically 
+
+$$
+H_0: \mu_1 = \mu_2 = \mu_3 = \mu_4 = \mu_5 \\
+H_A: \text{At least one of the means is different}
+$$
+or, if we wanted to get specific,
+
+$$
+H_0: \mu_{\text{divorced}} = \mu_{\text{married}} = \mu_{\text{never married}} = \mu_{\text{separated}} = \mu_{\text{widowed}} \\
+H_A: \text{At least one of the means is different}
+$$
+To do ANOVA in R, we can use the built-in R function `aov()`, which will use an F distribution as the distributional approximation for the null distribution. In order to use this distributional approximation, two conditions must be met:
+
+- the data must be normally distributed, or all the $n_i$s must be greater than 30
+- the variances of each group should be approximately equal. In practice, we check this by determining if $sd_{max}/sd_{min}<2$. 
+
+How can we check those conditions?
+
+```{r}
+
+```
+
+Now that we've ensured our conditions are met, we can use the `aov()` command. Much like the `lm()` command, it works best if you save the result from `aov()` into a named R object. 
+
+Try running the following code. What happens in your Environment?
+
+```{r}
+a1 <- aov(number_of_hours_worked_last_week ~ marital_status, data = GSS)
+```
+
+Now, let's run `summary()` on that object,
+
+```{r}
+summary(a1)
+```
+
+What are the degrees of freedom for the groups? The degrees of freedom for the error? The total degrees of freedom?
+
+What is the test statistic? What is the p-value?
+
+What is our generic conclusion at the $\alpha=0.05$ level?
+
+## Inference after ANOVA
+
+Because we found a significant p-value and concluded that at least one of the means is different, we can do inference after ANOVA. This is similar to inference on a single mean or a difference of means, but we use the square root of the MSE to estimate $\sigma$ instead of using the sample standard deviation. For example, for a confidence interval for the difference of two means, the standard error would be
+
+$$
+\sqrt{MSE\left(\frac{1}{n_i}+\frac{1}{n_j}\right)}
+$$
+Let's consider the difference between the number of hours worked per week by divorced people and married people. How would we estimate the standard error? 
+
+```{r}
+sqrt(208.6 * (1 / 403 + 1 / 998))
+```
+
+To do inference after ANOVA, we use a t-distribution with the degrees of freedom for the error. What is that in this example? 
+
+The easiest way to do pairwise tests in R is to do them all at once. You may recall from lecture that doing many tests at once can lead to a problem of multiple comparisons. 
+
+One solution to the problem of multiple comparisons is called the Bonferroni correction, which is where you essentially divide your $\alpha$ cutoff number by the number of tests you are going to run. But, there are other, more sophisticated methods. One of these is called Tukey's Honest Significant Difference, which we will use here. 
+
+Let's create an 80\% confidence interval for the difference between the number of hours worked by divorced and married people. 
+
+```{r}
+TukeyHSD(a1, conf.level = 0.8)
+```
+
+How can we interpret the interval? 
+
+Now, let's consider the hypothesis tests. Which ones showed significance? 

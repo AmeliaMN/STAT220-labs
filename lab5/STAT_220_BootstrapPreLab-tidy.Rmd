@@ -1,0 +1,165 @@
+---
+title: 'Bootstrap intervals pre-lab: tidy'
+author: "Professor McNamara"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+---
+
+## Setup and packages
+
+We use three packages in this course: `Lock5Data`, `tidyverse` and `infer`. To load a package, you use the `library()` function, wrapped around the name of a package. I've put the code to load one package into the chunk below. Add the other two you need. 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+library(Lock5Data)
+# put in the other two packages you need here
+```
+
+## Loading in data
+
+As usual, we'll load the example data, `GSS_clean.csv`. It should be inside the `data` folder in your RStudio Cloud. We'll use the `read_csv()` function to read in the data. 
+
+```{r data-load}
+GSS <- read_csv("data/GSS_clean.csv")
+```
+
+To make our lives easier, let's just drop NA values for the variable we're talking about today,
+
+```{r}
+GSS <- GSS %>%
+  drop_na(highest_year_of_school_completed)
+```
+
+## Recall: visualization and summary statistics for one quantitative variable
+
+In lab 2, we talked about doing Exploratory Data Analysis (EDA) for one quantitative variable. See if you can create a histogram of the `highest_year_of_school_completed` variable. 
+
+Hints:
+
+- You always need `ggplot(data)` 
+- you add on `geom_` functions with a `+`
+- inside the `geom_` you need an `aes()` call
+
+```{r}
+# write code here
+```
+
+Now, try to find the mean of that same variable. 
+
+Hints:
+
+- we start with the name of the dataset and a pipe, `%>%`
+- the next line has a `summarize()` command
+- inside the `summarize()` you need a summary statistic function
+- the name of the summary statistic function is what you would think
+
+```{r}
+# write code here
+```
+
+So, the average number of years of school the people in this dataset have completed is 13.7. We might want to give an interval for our estimate, rather than just a point estimate. Enter...
+
+## The bootstrap
+
+The bootstrap is a procedure to "pick yourself up by your bootstraps" and create a sampling distribution when you can't take repeated samples from the population. Instead, we are going to re-sample from our existing sample, and use those new "bootstrap samples" to generate sample statistics. 
+
+In order to take a bootstrap sample, we need to specify which variable we are interested in, then we need to generate some samples. Let's start with generating one bootstrap sample. 
+
+
+```{r}
+bootstrap_sample <- GSS %>%
+  specify(response = highest_year_of_school_completed) %>%
+  generate(reps = 1, type = "bootstrap")
+```
+
+Look at the `bootstrap_sample` object in your Environment. How many observations does it have? How many variables?
+
+
+
+
+We could make a histogram of that sample. 
+
+```{r}
+
+```
+
+Does this look similar to the distribution of the original data? What is different? 
+
+Does your histogram look the same as mine?
+
+## Setting a seed
+
+Because bootstrap samples are random, they look different every time we do them. This is good, because they are like random samples from the population, but it can be frustrating when you "knit" your document and the results change. To fix that, we are going to "set the seed" for the randomness. We use the `set.seed()` function, and then put our favorite number inside. I often use 42, or the day's date (03192020). It doesn't matter what you pick. 
+
+```{r}
+set.seed(42)
+```
+
+Setting the seed means that the psuedo-random-number-generator in R will always start off at the same point, and so your "randomness" will be predictable. 
+
+```{r}
+set.seed(42)
+bootstrap_sample <- GSS %>%
+  specify(response = highest_year_of_school_completed) %>%
+  generate(reps = 1, type = "bootstrap")
+ggplot(bootstrap_sample) + geom_histogram(aes(x = highest_year_of_school_completed), binwidth = 2)
+bootstrap_sample <- GSS %>%
+  specify(response = highest_year_of_school_completed) %>%
+  generate(reps = 1, type = "bootstrap")
+ggplot(bootstrap_sample) + geom_histogram(aes(x = highest_year_of_school_completed), binwidth = 2)
+set.seed(42)
+bootstrap_sample <- GSS %>%
+  specify(response = highest_year_of_school_completed) %>%
+  generate(reps = 1, type = "bootstrap")
+ggplot(bootstrap_sample) + geom_histogram(aes(x = highest_year_of_school_completed), binwidth = 2)
+```
+
+## Bootstrap distribution
+
+Just one bootstrap sample isn't that interesting. In order to make an interval, we need to repeat this process many times, where many usually means at least 1,000. We don't want to store 1,000 full datasets, so it's easier to add a `calculate()` verb to the end of our pipeline. 
+
+Let's do that here.
+
+```{r}
+boot <- GSS %>%
+  specify(response = highest_year_of_school_completed) %>%
+  generate(reps = 1000, type = "bootstrap") %>%
+  calculate(stat = "mean")
+```
+
+How many observations does that dataset have? How many variables? 
+
+
+
+
+Let's look at the distribution of that statistic. 
+```{r}
+ggplot(boot) + geom_histogram(aes(x = stat))
+```
+
+Does this look like our original histograms?
+
+What is the mean of that statistic?
+
+```{r}
+
+```
+
+Does that make sense?
+
+
+
+
+## Bootstrap intervals
+
+We could use the 95\% rule to eyeball a confidence interval that contained the middle 95\% of the distribution. My guess would be around (13.65, 13.85). But, we'd like to be more precise. The `get_ci()` function will help us with this.
+
+```{r}
+get_ci(boot)
+```
+
+How do we interpret this output?
+

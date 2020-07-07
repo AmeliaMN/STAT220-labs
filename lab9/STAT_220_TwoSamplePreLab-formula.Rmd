@@ -1,0 +1,152 @@
+---
+title: 'Inference for two samples pre-lab: formula'
+author: "Professor McNamara"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+---
+
+## Setup and packages
+
+We use three packages in this course: `Lock5Data`, `mosaic` and `ggformula`. To load a package, you use the `library()` function, wrapped around the name of a package. I've put the code to load one package into the chunk below. Add the other two you need. 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+library(Lock5Data)
+# put in the other two packages you need here
+```
+
+Another piece of setup you may want to do is set the option to remove NA values when you're computing summary statistics. 
+
+```{r}
+options(na.rm = TRUE)
+```
+
+## Loading in data
+
+As usual, we'll load the example data, `GSS_clean.csv`. It should be inside the `data` folder in your RStudio Cloud. We'll use the `read.csv()` function to read in the data. 
+
+```{r data-load}
+GSS <- read.csv("data/GSS_clean.csv")
+```
+
+We also need to do a little data cleaning to ensure this will work properly for the lab,
+
+```{r}
+GSS <- filter(GSS, should_marijuana_be_made_legal != "")
+GSS <- filter(GSS, self_emp_or_works_for_somebody != "")
+```
+
+## Inference for two samples
+
+This lab talks about "inference for two samples"-- in other words, doing inference on two proportions, or on two means. Like usual, we'll be using distributional approximations (either the normal distribution, or the t-distribution, depending on the parameter we're studying), and performing our main inferential tasks (confidence intervals and hypothesis tests). 
+
+## Difference of proportions
+
+To do inference for a difference of proportions, we approximate using a normal distribution. We need a way to compute the standard error, and the formula is different based on whether we're doing a confidence interval or a hypothesis test.
+
+For two proportions, in a confidence interval
+$$
+SE = \sqrt{\frac{\hat{p}_1(1-\hat{p}_1)}{n_1} + \frac{\hat{p}_2(1-\hat{p}_2)}{n_2}}
+$$
+
+For two proportion, in a hypothesis test
+
+$$
+SE=\sqrt{\frac{\hat{p}(1-\hat{p})}{n_1}+\frac{\hat{p}(1-\hat{p})}{n_2}}
+$$
+Where $\hat{p}$ is the pooled proportion. 
+
+Let's try making a confidence interval for a difference of two proportions. I'd like to find a confidence interval for the difference of proportion for people who said marijuana should be made legal, based on whether the person is self employed or works for somebody else.
+
+As with last time, you can either use R as a calculator or use the shortcut functions. Let's focus on the functions. 
+
+Let's start by finding our observed statistic. 
+
+```{r}
+
+```
+
+
+Now, let's do a 90% confidence interval. What needs to be changed here in order to make it a 90% interval?
+
+```{r}
+prop.test(should_marijuana_be_made_legal ~ self_emp_or_works_for_somebody, data = GSS)
+```
+
+How can we interpret the interval? 
+
+
+
+We could also do a hypothesis test. What are the hypotheses we're testing?
+
+
+In order to do the test, we just add a few more arguments to our function. 
+```{r}
+prop.test(should_marijuana_be_made_legal ~ self_emp_or_works_for_somebody, data = GSS)
+```
+
+## Inference for a difference of means
+
+To do inference for a difference of means, we approximate using a t-distribution. We need a way to compute the standard error, but the formula is not different between confidence intervals and hypothesis tests. 
+$$
+SE = \sqrt{\frac{s_1^2}{n_1}+\frac{s_2^2}{n_2}}
+$$
+Again, we can either use R as a big calculator or we can use functions. 
+
+I'm interested in seeing whether the mean number of years of school completed is different between people born in the US and those born outside the US. 
+
+We'll start by computing the point estimate,
+
+```{r}
+
+```
+
+
+Now let's make a confidence interval for that difference of means,
+
+```{r}
+t.test()
+```
+
+How can we interpret this interval?
+
+
+
+Now, let's perform a hypothesis test. We want to know if the means are significantly different from one another. How would we write out our hypotheses?
+
+In order to perform the test, we add some more parameters,
+
+```{r}
+
+```
+
+What do we conclude at the 5% level? The 10% level?
+
+## Inference for paired data
+
+Finally, we want to think about paired data. There are many ways to do this in R, but the easiest is to just make a new variable of differences, and then do inference on that variable. 
+
+Because a person's mother and father are "naturally paired," if we want to see if the mean level of education is different between mothers and fathers, we should really make a new variable of the differences and do inference on that. 
+
+```{r}
+GSS <- transform(GSS, diff = highest_year_school_completed_father - highest_year_school_completed_mother)
+```
+
+Now, we can do inference just as we would for a single mean, starting with finding the point estimate,
+
+```{r}
+
+```
+
+Now, we can do inference just the way we did in the single sample lab. 
+
+Here is the code from the last lab. Can you transform it to work on our differences data?
+
+```{r}
+t.test(~number_of_hours_worked_last_week, data = GSS, alternative = "two.sided", mu = 40)
+```
+
+What is the conclusion to our test?

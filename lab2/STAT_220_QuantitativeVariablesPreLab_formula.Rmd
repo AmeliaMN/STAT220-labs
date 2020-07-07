@@ -1,0 +1,154 @@
+---
+title: 'Quantitative variables pre-lab: formula'
+author: "Professor McNamara"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+---
+
+## Setup and packages
+
+We use three packages in this course: `Lock5Data`, `mosaic` and `ggformula`. To load a package, you use the `library()` function, wrapped around the name of a package. I've put the code to load one package into the chunk below. Add the other two you need. 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+library(Lock5Data)
+# put in the other two packages you need here
+```
+
+## Loading in data
+
+Let's load the example dataset I have for this course, `GSS_clean.csv`. It should be inside the `data` folder in your RStudio Cloud. We'll use the `read.csv()` function to read in the data. Here is a chunk where we will put the data loading code. 
+
+```{r data-load}
+# this is where data-loading code goes
+```
+
+## Quantitative variables
+
+Quantitative variables are those that encode some sort of continuous numeric range, with a multitude of possible values. We often talk about integer variables (just the whole numbers, like 1, 3, 10, 1000, etc) and more generic numeric variables (which may have long decimals, like 3.141593).
+
+What variables in this dataset are categorical? How can you tell?
+
+## Visualization for quantitative variables
+
+There are a number of ways to visualize one categorical variable: histograms, density plots, and boxplots are all common ways. We'll see how to make all three. 
+
+When we are once again generating graphics in the formula R syntax. This means we use functions that begin with `gf_`. After the underscore, there is the name of the plot we want to make. We'll start with a histogram, so we'll use the `gf_histogram()` function. This function, like all functions in formula syntax, wants a "formula" as its first "argument." 
+
+Since we are only trying to visualize one variable, we use the tilde and then the name of the variable. That is the "formula." The `gf_` functions want another argument as well, which is the dataset where the variable is located. If you don't provide this, the function won't know where to look for `marital_status`. 
+
+```{r}
+gf_histogram(~number_of_hours_worked_last_week, data = GSS)
+```
+
+This returns a "warning" from R, saying that it removed 967 rows containing non-finite values. That means 967 of the 2348 rows in our dataset didn't have a value for `number_of_hours_worked_last_week`. Maybe we should think more about whether this is a good plot to be making, if almost half the data is missing. 
+
+The other thing we should think about when we make a histogram is the binwidth. `binwidth` is another argument to the `gf_histogram()` function, so it goes inside the parentheses of that function, separated from the other arguments with a comma. 
+
+```{r}
+gf_histogram(~number_of_hours_worked_last_week, data = GSS, binwidth = 15)
+```
+
+Try adjusting the binwidth. What do you think an appropriate binwidth would be for this data?
+
+```{r}
+gf_histogram(~number_of_hours_worked_last_week, data = GSS, binwidth = 15) # change binwidth
+```
+
+Try making your own histogram of the `number_of_brothers_and_sisters` variable. Pick an appropriate binwidth. 
+
+```{r}
+# write code here
+```
+
+Now, let's try making a density plot instead. What `gf_` function do you think we want? You can try typing `gf_` and hitting Tab on your keyboard to see the options.
+
+```{r}
+# write code here
+```
+
+Finally, let's make a boxplot. What `gf_` function do you think we want? 
+
+```{r}
+# write code here
+```
+
+If we want to make side-by-side boxplots, we need to think more about our formula. We've been using $~x$, because we only had one variable in our earlier plots, but now we have two variables, so we'll be using the $y~x$ syntax. If we want separate boxplots for the `number_of_hours_worked_last_week` based on the levels of `marital_status`, which variable should be the $x$? The $y$? You can try it both ways to see what you get. 
+
+```{r}
+# write code here
+```
+
+Does this plot make sense?
+
+Note: you can only make side-by-side boxplots if the variable you are using to split the data is categorical. If R thinks your variable is **not** categorical, you may need to wrap the `factorize()` function around your variable. 
+
+```{r}
+gf_boxplot(number_of_hours_worked_last_week ~ factorize(marital_status), data = GSS)
+```
+
+What changed here?
+
+
+## Summary statistics for quantitative variables
+
+There are many summary statistics we can calculate for quantitative variables. Here are some, and their correspoding R functions:
+
+- mean `mean()`
+- median `median()`
+- standard deviation `sd()`
+- maximum `max()`
+- minimum `min()`
+- interquartile range `iqr()`
+- five-number summary `fivenum()`
+- "favorite" statistics `favstats()`
+
+These functions use the same formula syntax as the `gf_` functions and functions we've seen before, like `tally()`. For now, we're just looking at summary statistics of one quantitative variable, so we'll be using the $~x$ formula. Let's see how that works with a quantitative variable. 
+
+```{r}
+mean(~number_of_hours_worked_last_week, data = GSS)
+```
+
+Well, that's probably not what we wanted. The mean is just `NA`. That's because of all those missing values we saw in the warning from R earlier when we were making the plot. There are a lot of missing values (encoded as `NA` in R) in the `number_of_hours_worked_last_week` variable. Again, we should consider whether it really makes sense to do summary statistics if half of the data is missing. 
+
+In order to get a number out, we need to tell R to ignore those missing values when we compute the mean. There are a couple ways to do this. One is to add the  `na.rm` argument to the summary statistic function. 
+
+```{r}
+mean(~number_of_hours_worked_last_week, data = GSS, na.rm = TRUE)
+```
+
+But, this can get repetitive if you are computing a bunch of statistics. Easier (but perhaps more dangerous!) is to change the overall option,
+
+```{r}
+options(na.rm = TRUE)
+mean(~number_of_hours_worked_last_week, data = GSS)
+```
+
+Now, try finding the median `number_of_brothers_and_sisters`. 
+
+```{r}
+# write code here
+```
+
+
+What if we want to find the five-number summary of `number_of_hours_worked_last_week`? What function do you think we would use? 
+
+```{r}
+# write code here
+```
+
+### Detecting outliers
+
+Our rule of thumb for detecting outliers is 1.5*IQR. Let's apply that to the `number_of_hours_worked_last_week` dataset. 
+
+Since we saw the lower hinge for this dataset was 35, the upper hinge was 50, and the IQR was 15, we can use R as a calculator to find, 
+
+```{r}
+35 - 1.5 * 15
+50 + 1.5 * 15
+```
+
+So anyone working less than 12.5 hours a week or more than 72.5 hours a week are outliers. Are there any outliers? How can you tell?

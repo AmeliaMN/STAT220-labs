@@ -1,0 +1,101 @@
+---
+title: 'Inference for many proportions (Chi-square) - formula'
+author: "Professor McNamara"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+---
+
+## Setup and packages
+
+We use three packages in this course: `Lock5Data`, `mosaic` and `ggformula`. To load a package, you use the `library()` function, wrapped around the name of a package. I've put the code to load one package into the chunk below. Add the other two you need. 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+library(Lock5Data)
+library(mosaic)
+library(ggformula)
+```
+
+Another piece of setup you may want to do is set the option to remove NA values when you're computing summary statistics. 
+
+```{r}
+options(na.rm = TRUE)
+```
+
+## Loading in data
+
+As usual, we'll load the example data, `GSS_clean.csv`. It should be inside the `data` folder in your RStudio Cloud. We'll use the `read.csv()` function to read in the data. 
+
+```{r data-load}
+GSS <- read.csv("data/GSS_clean.csv")
+```
+
+## Chi-square tests
+
+There are two main tasks we can use a Chi-square test for: goodness of fit tests (for one categorical variable) and tests for association (two categorical variables). We'll go through both of them. 
+
+To use a $\chi^2$ distribution as a distributional approximation, we need to check the condition that each of the expected counts is at least 5.
+
+## Chi-square for goodness of fit
+
+For this example, we are going to consider the variable `general_happiness` from the `GSS` data. I would like to study the following hypotheses,
+
+$$
+H_0: p_{\text{not too happy}} = 0.14, p_{\text{pretty happy}} = 0.56, p_{\text{very happy}} = 0.3 \\
+H_A: \text{at least one of the proportions is different}
+$$
+
+
+Let's start by looking at a summary of the data. 
+
+```{r}
+tally(~general_happiness, data = GSS, useNA = "no")
+```
+
+Are the conditions for inference met? 
+
+We can assume all the expected counts are greater than 5, because all the observed counts are so much greater. 
+
+Now, we can use the `chisq.test()` function to do the test. This function expects to be given a `tally()`, so we'll just wrap that in the new function. 
+
+```{r}
+chisq.test(tally(~general_happiness, data = GSS, useNA = "no"), p = c(0.14, 0.56, 0.3))
+```
+
+Our test statistic is 0.218, we have 2 degrees of freedom, and our p-value is 0.8965. 
+
+What is the conclusion to the test?
+
+We fail to reject, because the p-value is $>0.05$. We do not have evidence to suggest the proportions are different than those specified in the null. 
+
+## Chi-square for association
+
+For a chi-square test for association, we are looking at the relationship between two categorical variables. For this example, let's consider the relationship between `marital_status` and `general_happiness`. 
+
+$$
+H_0: \text{there is no association between marital status and general happiness}\\
+H_A: \text{there is an association between marital status and general happiness}
+$$
+
+Again, we should check to ensure the conditions are met before proceeding. 
+
+```{r}
+tally(marital_status ~ general_happiness, data = GSS, useNA = "no")
+```
+
+Again, all our observed counts are significantly greater than 5, so we can assume the expected counts would be as well. 
+
+Now, we can use `chisq.test()` to do the test! Again, we need to wrap up the `tally()`. 
+
+```{r}
+chisq.test(tally(marital_status ~ general_happiness, data = GSS, useNA = "no"))
+```
+
+Our test statistic is 201.65, our degrees of freedom are 8, and the p-value is approximately 0. 
+
+What is the conclusion of the test?
+
+Reject the null hypothesis. We have evidence to suggest there is a relationship between marital status and general happiness. 

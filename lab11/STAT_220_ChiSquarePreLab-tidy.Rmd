@@ -1,0 +1,104 @@
+---
+title: 'Inference for many proportions (Chi-square) - tidy'
+author: "Professor McNamara"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+---
+
+## Setup and packages
+
+We use three packages in this course: `Lock5Data`, `tidyverse` and `infer`. To load a package, you use the `library()` function, wrapped around the name of a package. I've put the code to load one package into the chunk below. Add the other two you need. 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+library(Lock5Data)
+library(tidyverse)
+library(infer)
+```
+
+## Loading in data
+
+As always, we'll load the example data, `GSS_clean.csv`. It should be inside the `data` folder in your RStudio Cloud. We'll use the `read_csv()` function to read in the data. 
+
+```{r data-load}
+GSS <- read_csv("data/GSS_clean.csv")
+```
+
+## Chi-square tests
+
+There are two main tasks we can use a Chi-square test for: goodness of fit tests (for one categorical variable) and tests for association (two categorical variables). We'll go through both of them. 
+
+To use a $\chi^2$ distribution as a distributional approximation, we need to check the condition that each of the expected counts is at least 5.
+
+## Chi-square for goodness of fit
+
+For this example, we are going to consider the variable `general_happiness` from the `GSS` data. I would like to study the following hypotheses,
+
+$$
+H_0: p_{\text{not too happy}} = 0.14, p_{\text{pretty happy}} = 0.56, p_{\text{very happy}} = 0.3 \\
+H_A: \text{at least one of the proportions is different}
+$$
+
+
+Let's start by looking at a summary of the data. 
+
+```{r}
+GSS %>%
+  drop_na(general_happiness) %>%
+  group_by(general_happiness) %>%
+  summarize(n = n()) %>%
+  mutate(prop = n/sum(n))
+```
+
+Are the conditions for inference met? 
+
+We can assume so, because all the observed counts are so much bigger than 5. 
+
+Now, we can use the `chisq_test()` function to do the test!
+
+```{r}
+GSS %>%
+  chisq_test(response = general_happiness, p = c(0.14, 0.56, 0.3))
+```
+
+Our test statistic is 0.218, we have 2 degrees of freedom, and our p-value is 0.897. 
+
+What is the conclusion to the test?
+
+We fail to reject the null, we have evidence to suggest the null hypothesized proportions are correct. 
+
+## Chi-square for association
+
+For a chi-square test for association, we are looking at the relationship between two categorical variables. For this example, let's consider the relationship between `marital_status` and `general_happiness`. 
+
+$$
+H_0: \text{there is no association between marital status and general happiness}\\
+H_A: \text{there is an association between marital status and general happiness}
+$$
+
+Again, we should check to ensure the conditions are met before proceeding. 
+
+```{r}
+GSS %>%
+  drop_na(marital_status, general_happiness) %>%
+  group_by(marital_status, general_happiness) %>%
+  summarize(n = n())
+```
+
+Again, because our observed counts are all significantly greater than 5, we can assume the expected counts would all be greater than 5. 
+
+Now, we can use `chisq_test()` to do the test!
+
+```{r}
+GSS %>%
+  chisq_test(response = marital_status, explanatory = general_happiness)
+```
+
+Our test statistic is 202. Our degrees of freedom are 8 and our p-value is approximately 0. 
+
+What is the conclusion of the test?
+
+We reject the null hypothesis. We have evidence to suggest there is a relationship between marital status and general happiness. 

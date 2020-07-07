@@ -1,0 +1,154 @@
+---
+title: 'Randomization hypothesis testing pre-lab: formula'
+author: "Professor McNamara"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+---
+
+## Setup and packages
+
+We use three packages in this course: `Lock5Data`, `mosaic` and `ggformula`. To load a package, you use the `library()` function, wrapped around the name of a package. I've put the code to load one package into the chunk below. Add the other two you need. 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+library(Lock5Data)
+# put in the other two packages you need here
+```
+
+Another piece of setup you may want to do is set the option to remove NA values when you're computing summary statistics. 
+
+```{r}
+options(na.rm = TRUE)
+```
+
+## Loading in data
+
+As usual, we'll load the example data, `GSS_clean.csv`. It should be inside the `data` folder in your RStudio Cloud. We'll use the `read.csv()` function to read in the data. 
+
+```{r data-load}
+GSS <- read.csv("data/GSS_clean.csv")
+```
+
+## Hypothesizing
+
+Let's consider the relationship between `self_emp_or_works_for_somebody` and `number_of_hours_worked_last_week`. We might want to know if there is a significance difference in working hours between self employed people and and those employed by someone else.
+
+We can compute the observed sample statistics,
+
+```{r}
+
+```
+
+We can even use the `diff()` function to tell us the difference between these two numbers
+```{r}
+diff(mean(number_of_hours_worked_last_week ~ self_emp_or_works_for_somebody, data = GSS))
+```
+
+Those means **look** different to me, but we need to use statistics to be sure. So, let's perform a hypothesis test. Step one is hypothesizing. 
+
+We can write out hypotheses in RMarkdown using either words or notation. 
+
+We could write this in notation:
+$$
+H_0: \mu_{\text{self employed}} = \mu_{\text{someone else}} \\
+H_A:\mu_{\text{self employed}} \neq \mu_{\text{someone else}}
+$$
+We could also have written this out in words:
+
+Null hypothesis: there is no difference in average number of hours worked by people who are self employed and those who are employed by someone else.
+
+Alternative hypothesis: there is a difference in average number of hours worked by people who are self employed and those who are employed by someone else.
+
+## Randomization
+
+The process of randomization is to create what the world would look like if the null hypothesis were true. In this case, that means we want to ensure there is no relationship between whether someone is self employed and the number of hours they worked. We can do this by breaking the relationship between the two variables. (See [Professor McNamara's video](https://youtu.be/12pQmmLMtTs) about making the connection between bootstrap and randomization distributions on YouTube for more.)
+
+We can use the `shuffle()` function to help us with this. We want to shuffle just one variable, while leaving the other one alone. Let's start by trying this one time.
+
+```{r}
+one_randomization <- mean(number_of_hours_worked_last_week ~ shuffle(self_emp_or_works_for_somebody), data = GSS)
+one_randomization
+diff(one_randomization)
+```
+
+Those means are slightly different from one another, but they look like they could just be the result of chance. (And in fact, they are! We ensured that, by shuffling.)
+
+## Setting a seed
+
+Because these `shuffle()`s random, they look different every time we do them, just like bootstrap samples did. As before, this is good, because it will help us build up a null distribution, but it can be frustrating when you "knit" your document and the results change. To fix that, we are going to "set the seed" for the randomness. We use the `set.seed()` function, and then put our favorite number inside. I often use 42, or the day's date (03192020). It doesn't matter what you pick. 
+
+```{r}
+set.seed(42)
+```
+
+Setting the seed means that the psuedo-random-number-generator in R will always start off at the same point, and so your "randomness" will be predictable. 
+
+## Randomization distribution
+
+Just one randomization sample isn't that interesting. In order to make a distribution, we need to repeat this process many times, where many usually means at least 1,000.  
+
+Let's do that here.
+
+```{r}
+randomization <- do(1000) * diff(mean(number_of_hours_worked_last_week ~ shuffle(self_emp_or_works_for_somebody), data = GSS))
+```
+
+How many observations does that dataset have? How many variables? 
+
+
+
+
+Let's look at the distribution of that statistic. 
+```{r}
+
+```
+
+How is this distribution shaped?
+
+What is the mean of that distribution?
+
+```{r}
+
+```
+
+Does that make sense?
+
+
+
+
+## Evidence from randomization distributions
+
+We could use the 95\% rule to eyeball a confidence interval that contained the middle 95\% of the distribution. My guess would be around (-2.5, 2.5). That would mean that any observed statistic that was larger than 2.5 or smaller than -2.5 would be pretty weird to see if the null hypothesis were true. 
+
+What was our observed statistic, again?
+
+```{r}
+
+```
+
+Okay, so we think it is pretty weird, just by eyeballing. But, we'd rather have a specific p-value for how much of the distribution is as extreme or more extreme than that observed value. We can use the `pdata()` function to tell us how much of the distribution is to the left of the value,
+
+```{r}
+
+```
+
+So, 98\% of the data is less than 2.74. That's not exactly what we need. Let's calculate our actual p-value.
+
+```{r}
+
+```
+
+What do we conclude, at a $\alpha=0.05$ level?
+
+
+
+How would this change if we were doing a one-sided test?
+
+
+
+
+
+

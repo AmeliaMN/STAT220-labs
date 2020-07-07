@@ -1,0 +1,214 @@
+---
+title: 'Inference for a single sample pre-lab: tidy'
+author: "Professor McNamara"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+---
+
+We use three packages in this course: `Lock5Data`, `tidyverse` and `infer`. To load a package, you use the `library()` function, wrapped around the name of a package. I've put the code to load one package into the chunk below. Add the other two you need. 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+library(Lock5Data)
+# put in the other two packages you need here
+```
+
+## Loading in data
+
+As usual, we'll load the example data, `GSS_clean.csv`. It should be inside the `data` folder in your RStudio Cloud. We'll use the `read_csv()` function to read in the data. 
+
+```{r data-load}
+GSS <- read_csv("data/GSS_clean.csv")
+```
+
+To make our lives easier, let's just drop NA values for the variables we're talking about today,
+
+```{r}
+GSS <- GSS %>%
+  drop_na(
+    number_of_hours_worked_last_week,
+    self_emp_or_works_for_somebody
+  )
+```
+
+## Inference
+
+So far, we've done inference using simulation methods (lab 4 was about the bootstrap and lab 5 was about randomization). Now, we're going to do inference using distributional approximations. 
+
+We'll cover two particular parameters:
+
+- a single proportion
+- a single mean
+
+When we're doing inference about a single proportion, we approximate using the standard normal distribution, but when we're doing inference about a mean we approximate with the student's t distribution. Either way, we need to know a formula to approximate the standard error. Let's review those:
+
+For one proportion, in a confidence interval
+$$
+SE_{\hat{p}} = \sqrt{\frac{\hat{p}(1-\hat{p})}{n}}
+$$
+
+For one proportion, in a hypothesis test
+
+$$
+SE_{p_0}=\sqrt{\frac{p_0(1-p_0)}{n}}
+$$
+
+For one mean, we get to use the same standard error calculation in both a confidence interval and a hypothesis test,
+
+$$
+SE_{\bar{x}}=\frac{s}{\sqrt{n}}
+$$
+
+## One proportion
+
+Let's practice doing some inference for a single proportion. We'll start with a confidence interval. We'll consider the proportion of people who are self-employed. We learned how to compute a proportion way back in lab 1. See if you can remember how to compute the sample proportion.
+
+```{r}
+
+```
+
+
+Okay, now what if we wanted to compute the standard error? We could refer to our formula,
+
+$$
+SE_{\hat{p}} = \sqrt{\frac{\hat{p}(1-\hat{p})}{n}}
+$$
+
+and use R as a calculator
+
+```{r}
+
+```
+
+To compute a confidence interval, we need one more thing, which is a critical value. In the case of a proportion, this will be a critical z-value, which you might have memorized (it's 1.96 for a 95\% confidence interval) or you may need to compute. Let's check to make sure I'm right about this 1.96 thing.
+
+```{r}
+qnorm(0.975)
+```
+
+Why did I use 0.975?
+
+Now, we can compute our confidence interval by hand:
+
+```{r}
+0.12 - 1.96 * 0.00875
+0.12 + 1.96 * 0.00875
+```
+
+We could also do this in a longer (but perhaps more readable?) way in a data pipeline,
+
+```{r}
+GSS %>%
+  group_by(self_emp_or_works_for_somebody) %>%
+  summarize(n = n()) %>%
+  mutate(prop = n / sum(n), total = sum(n)) %>%
+  filter(self_emp_or_works_for_somebody == "Self-employed") %>%
+  mutate(
+    se = sqrt(prop * (1 - prop) / total),
+    critical_z = 1.96,
+    me = critical_z * se
+  ) %>%
+  mutate(low = prop - me, high = prop + me)
+```
+
+The same thing is true for doing a hypothesis test. Say we wanted to know if the proportion of people who are self employed is greater than 10\%. We could write out our null and alternative hypotheses,
+
+
+$$
+H_0: p \leq 0.1 \\
+H_A:p > 0.1
+$$
+
+And then either use R as a calculator or edit our data pipeline slightly,  
+
+```{r}
+GSS %>%
+  group_by(self_emp_or_works_for_somebody) %>%
+  summarize(n = n()) %>%
+  mutate(prop = n / sum(n), total = sum(n)) %>%
+  filter(self_emp_or_works_for_somebody == "Self-employed") %>%
+  mutate(se = sqrt(prop * (1 - prop) / total)) %>%
+  mutate(z_stat = (prop - 0.1) / se) %>%
+  mutate(pvalue = pnorm(z_stat, lower.tail = FALSE))
+```
+
+What's different about that data pipeline?
+
+What do we conclude at the 5\% level? At the 1\% level?
+
+## One mean
+
+Let's consider the same two tasks with a single mean. Here, we'll consider the mean of `number_of_hours_worked_last_week` as our statistic of interest. See if you can compute the point estimate.
+
+```{r}
+
+```
+
+Again, we could compute the standard error by hand,
+
+$$
+SE_{\bar{x}}=\frac{s}{\sqrt{n}}
+$$
+
+(what else do we need to know?)
+
+```{r}
+
+```
+
+And we just need a critical t-value in order to compute a confidence interval. With the t distribution, we can't have critical values memorized, because they depend on degrees of freedom. We'll compute our critical t-value using `qt()`
+
+```{r}
+qt(0.975, df = 1380)
+```
+
+Now, we can compute our confidence interval by hand:
+
+```{r}
+41.3 - 1.96 * 0.39
+41.3 + 1.96 * 0.39
+```
+
+Again, we could also make this into a data pipeline,
+
+```{r}
+GSS %>%
+  summarize(
+    mean = mean(number_of_hours_worked_last_week),
+    sd = sd(number_of_hours_worked_last_week),
+    n = n()
+  ) %>%
+  mutate(
+    se = sd / sqrt(n),
+    critical_t = qt(0.975, df = 1380),
+    me = critical_t * se
+  ) %>%
+  mutate(low = mean - me, high = mean + me)
+```
+
+
+The same thing is true for doing a hypothesis test. Say we wanted to know if the true mean number of hours worked in a week is different than 40. We could write out our null and alternative hypotheses,
+
+$$
+H_0: \mu = 40 \\
+H_A: \mu\neq 40
+$$
+
+And, either use R as a calculator or edit our data pipeline,
+
+```{r}
+GSS %>%
+  summarize(
+    mean = mean(number_of_hours_worked_last_week),
+    sd = sd(number_of_hours_worked_last_week),
+    n = n()
+  ) %>%
+  mutate(se = sd / sqrt(n)) %>%
+  mutate(t_stat = (mean - 40) / se) %>%
+  mutate(pvalue = 2 * pt(t_stat, df = n - 1, lower.tail = FALSE))
+```
+
+What do we conclude at the 5\% level? At the 1\% level?

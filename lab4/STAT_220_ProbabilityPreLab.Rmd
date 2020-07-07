@@ -1,0 +1,95 @@
+---
+title: "Probability pre-lab"
+author: "Professor McNamara"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+header-includes:
+- \usepackage{tikz}
+- \usetikzlibrary{trees}
+- \tikzstyle{level 1}=[level distance=3.5cm, sibling distance=3.5cm]
+- \tikzstyle{level 2}=[level distance=3.5cm, sibling distance=2cm]
+- \tikzstyle{bag} = [text width=4em, text centered]
+- \tikzstyle{end} = [circle, minimum width=3pt,fill, inner sep=0pt]
+---
+
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# No packages required for this lab!
+```
+
+## R as a calculator
+
+Remember, you can use R as a calculator. 
+
+```{r}
+36/108
+```
+
+## Images in RMarkdown
+
+If you want to embed an image into an RMarkdown document, it should be in the same "directory" (folder) as your .Rmd file. So, if you are working on RStudio Cloud, this means the image also needs to be uploaded to RStudio Cloud.
+
+![](normal_dist.png)
+
+## Tables in RMarkdown
+
+We've seen tables before. If we don't want to embed an image, we can make a probability distribution in a table in RMarkdown.
+
+x    | A | B | C | D
+-----|---|---|---|---
+p(x) | 0.35  |  0.25  | 0.15  | 0.05
+
+(Knit to see the finished table)
+
+## Trees in RMarkdown
+
+Trees are hard in RMarkdown. If we don't want to embed an image, we can make a tree using TixZ. (Knit to see the finished tree, only works if you Knit to PDF.)
+
+\begin{tikzpicture}[grow=right, sloped]
+\node[bag] {1,000 people}
+    child {
+        node[bag] {0.1}        
+            child {
+                node[end, label=right:
+                    {cancer, negative: 0.0015}] {}
+                edge from parent
+                node[above] {negative}
+                node[below]  {0.15}
+            }
+            child {
+                node[end, label=right:
+                    {cancer, positive: 0.0085}] {}
+                edge from parent
+                node[above] {positive}
+                node[below]  {0.85}
+            }
+            edge from parent 
+            node[above] {cancer}
+            node[below]  {0.0001}
+    }
+    child {
+        node[bag] {999.9}        
+        child {
+                node[end, label=right:
+                    {no cancer, negative: 899.91}] {}
+                edge from parent
+                node[above] {negative}
+                node[below]  {0.99}
+            }
+            child {
+                node[end, label=right:
+                    {no cancer, positive: 9.999}] {}
+                edge from parent
+                node[above] {positive}
+                node[below]  {0.01}
+            }
+        edge from parent         
+            node[above] {no cancer}
+            node[below]  {0.9999}
+    };
+\end{tikzpicture}

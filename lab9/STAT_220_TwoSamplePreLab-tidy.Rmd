@@ -1,0 +1,182 @@
+---
+title: 'Inference for two samples pre-lab: tidy'
+author: "Professor McNamara"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+---
+
+## Setup and packages
+
+We use three packages in this course: `Lock5Data`, `tidyverse` and `infer`. To load a package, you use the `library()` function, wrapped around the name of a package. I've put the code to load one package into the chunk below. Add the other two you need. 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+library(Lock5Data)
+# put in the other two packages you need here
+```
+
+## Loading in data
+
+As always, we'll load the example data, `GSS_clean.csv`. It should be inside the `data` folder in your RStudio Cloud. We'll use the `read_csv()` function to read in the data. 
+
+```{r data-load}
+GSS <- read_csv("data/GSS_clean.csv")
+```
+
+I'm not going to drop NA values here, because we're using lots of different variables in the dataset as we go along. But, we'll want to stick `drop_na()` code into most of our pipelines. 
+
+## Inference for two samples
+
+This lab talks about "inference for two samples"-- in other words, doing inference on two proportions, or on two means. Like usual, we'll be using distributional approximations (either the normal distribution, or the t-distribution, depending on the parameter we're studying), and performing our main inferential tasks (confidence intervals and hypothesis tests). 
+
+## Difference of proportions
+
+To do inference for a difference of proportions, we approximate using a normal distribution. We need a way to compute the standard error, and the formula is different based on whether we're doing a confidence interval or a hypothesis test.
+
+For two proportions, in a confidence interval
+$$
+SE = \sqrt{\frac{\hat{p}_1(1-\hat{p}_1)}{n_1} + \frac{\hat{p}_2(1-\hat{p}_2)}{n_2}}
+$$
+
+For two proportion, in a hypothesis test
+
+$$
+SE=\sqrt{\frac{\hat{p}(1-\hat{p})}{n_1}+\frac{\hat{p}(1-\hat{p})}{n_2}}
+$$
+Where $\hat{p}$ is the pooled proportion. 
+
+## Confidence interval for two proportions
+
+Let's try making a confidence interval for a difference of two proportions. I'd like to find a confidence interval for the difference of proportion for people who said marijuana should be made legal, based on whether the person is self employed or works for somebody else.
+
+We could do this test in a handmade data pipeline, much like we did in the inference for one sample lab. Let's start by finding the test statistic. 
+
+```{r}
+
+```
+
+Now, we can build that into the rest of the data pipeline. 
+
+```{r}
+# code getting the test statistic
+filter(should_marijuana_be_made_legal == "Legal") %>%
+  ungroup() %>%
+  summarize(
+    diff = diff(prop),
+    se = sqrt(sum(prop * (1 - prop) / total))
+  ) %>%
+  mutate(critical_z = 1.96, me = critical_z * se) %>%
+  mutate(low = diff - me, high = diff + me)
+```
+
+
+How can we let's interpret that interval?
+
+## Hypothesis test for two proprtions
+
+We could also do a hypothesis test. What are the hypotheses we're testing?
+
+Now let's modify the data pipeline from before to make it work for a hypothesis test.
+
+
+```{r}
+# earlier data pipeline stuff
+ungroup() %>%
+  group_by(should_marijuana_be_made_legal) %>%
+  mutate(total_prop = sum(n * prop) / sum(n), total = sum(grouptotal)) %>%
+  filter(should_marijuana_be_made_legal == "Legal") %>%
+  ungroup() %>%
+  summarize(
+    diff = diff(prop),
+    se = sqrt(sum(total_prop * (1 - total_prop) / grouptotal))
+  ) %>%
+# changed data pipeline stuff
+```
+
+Why did we need to change so much of our code? 
+
+What is the conclusion of the test?
+
+
+## Inference for a difference of means
+
+To do inference for a difference of means, we approximate using a t-distribution. We need a way to compute the standard error, but the formula is not different between confidence intervals and hypothesis tests.
+
+$$
+SE = \sqrt{\frac{s_1^2}{n_1}+\frac{s_2^2}{n_2}}
+$$
+Again, we can either use R as a big calculator or we can use functions. 
+
+## Confidence interval for a difference of means
+
+I'm interested in seeing whether the mean number of years of school completed is different between people born in the US and those born outside the US. 
+
+We'll start by computing the point estimate,
+
+```{r}
+
+```
+
+Now let's make a confidence interval for that difference of means,
+
+```{r}
+# code getting the test statistic %>%
+summarize(
+  diff = diff(mean),
+  se = sqrt(sum(sd^2 / n)),
+  df = min(n - 1),
+  critical_t = qt(0.975, df = df),
+  me = critical_t * se
+) %>%
+  mutate(low = diff - me, high = diff + me)
+```
+
+How can we interpret this interval?
+
+
+## Hypothesis test for a difference in means
+Now, let's perform a hypothesis test. We want to know if the means are significantly different from one another. How would we write out our hypotheses?
+
+Again, we can either use R as a calculator or modify our data pipline,
+
+```{r}
+
+```
+
+What do we conclude at the 5% level? The 10% level?
+
+## Inference for paired data
+
+Finally, we want to think about paired data. There are many ways to do this in R, but the easiest is to use a variable of *differences*, and then do inference on that variable. Some datasets come with this difference already included, but other times you will need to compute it yourself. 
+
+In this case, we're going to look at average education between GSS participants' parents. This survey is assuming heterosexual parents, which means that a person's mother and father are "naturally paired." If we want to see if the mean level of education is different between mothers and fathers, we should really make a new variable of the differences and do inference on that. 
+
+```{r}
+GSS <- GSS %>%
+  mutate(diff = highest_year_school_completed_father - highest_year_school_completed_mother)
+```
+
+Now, we can do inference just as we would for a single mean, starting with finding the point estimate,
+
+```{r}
+
+```
+
+and then working with a data pipeline just the way we did in the single sample lab. 
+
+Here is the code from the last lab. Can you transform it to work on our differences data?
+
+```{r}
+GSS %>%
+  summarize(
+    mean = mean(number_of_hours_worked_last_week),
+    sd = sd(number_of_hours_worked_last_week),
+    n = n()
+  ) %>%
+  mutate(se = sd / sqrt(n)) %>%
+  mutate(t_stat = (mean - 40) / se) %>%
+  mutate(pvalue = 2 * pt(t_stat, df = n - 1, lower.tail = FALSE))
+```

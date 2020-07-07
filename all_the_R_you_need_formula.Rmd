@@ -1,0 +1,143 @@
+---
+title: "All the R you need for STAT 220 - formula"
+author: "Professor McNamara"
+date: "Spring 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(eval = TRUE, warning = FALSE)
+```
+
+## Packages
+
+We use three packages in this course:
+
+```{r, message=FALSE}
+library(Lock5Data)
+library(mosaic)
+library(ggformula)
+```
+
+## Reading in data
+
+```{r}
+GSS <- read.csv("data/GSS_clean.csv")
+```
+
+## Plotting
+
+```{r}
+# one categorical
+gf_bar(~marital_status, data = GSS)
+
+# two categorical
+gf_bar(~marital_status, fill = ~born_in_us, data = GSS)
+gf_bar(~marital_status, fill = ~born_in_us, data = GSS, position = "dodge")
+
+# one numeric
+gf_histogram(~highest_year_of_school_completed, data = GSS)
+gf_boxplot(~highest_year_of_school_completed, data = GSS)
+
+# one numeric, one categorical
+gf_boxplot(highest_year_of_school_completed ~ labor_force_status, data = GSS)
+
+# two numeric
+gf_point(highest_year_of_school_completed ~ highest_year_school_completed_spouse,
+  data = GSS
+)
+```
+
+## Summary statistics
+
+```{r}
+# one categorical
+tally(~marital_status, data = GSS, format = "proportion")
+
+# two categorical
+tally(~ marital_status | general_happiness, data = GSS, format = "proportion")
+
+# one numeric
+mean(~highest_year_of_school_completed, data = GSS, na.rm = TRUE)
+options(na.rm = TRUE) # options
+median(~highest_year_of_school_completed, data = GSS)
+sd(~highest_year_of_school_completed, data = GSS)
+range(~highest_year_of_school_completed, data = GSS)
+IQR(~highest_year_of_school_completed, data = GSS)
+fivenum(~highest_year_of_school_completed, data = GSS)
+favstats(~highest_year_of_school_completed, data = GSS) # favorite statistics
+
+cor(highest_year_of_school_completed ~ highest_year_school_completed_spouse,
+  data = GSS, use = "complete.obs"
+) # correlation
+```
+
+## Working with data
+
+```{r}
+# filtering out NA values
+GSS_prop <- filter(
+  GSS,
+  !is.na(should_marijuana_be_made_legal),
+  !is.na(self_emp_or_works_for_somebody)
+)
+```
+
+## Modeling and inference
+
+```{r}
+# linear model
+m1 <- lm(highest_year_of_school_completed ~ highest_year_school_completed_spouse,
+  data = GSS
+)
+summary(m1)
+rsquared(m1)
+
+predict(m1,
+  newdata = data.frame(highest_year_school_completed_spouse = 11),
+  interval = "confidence"
+)
+predict(m1,
+  newdata = data.frame(highest_year_school_completed_spouse = 11),
+  interval = "prediction"
+)
+
+# bootstrapping
+bootstrap_sample <- do(1) * resample(GSS)
+boot <- do(1000) * mean(~highest_year_of_school_completed, data = resample(GSS))
+confint(boot)
+
+# one proportion
+prop.test(~self_emp_or_works_for_somebody,
+  data = GSS, success = "Self-employed", p = 0.1, alternative = "less"
+)
+
+# two proportions
+prop.test(should_marijuana_be_made_legal ~ self_emp_or_works_for_somebody,
+  data = GSS_prop, success = "Legal"
+)
+
+# one mean
+t.test(~highest_year_of_school_completed, data = GSS, mu = 12, alternative = "greater")
+
+# two means
+t.test(highest_year_of_school_completed ~ born_in_us, data = GSS)
+
+# ANOVA
+a1 <- aov(highest_year_of_school_completed ~ labor_force_status, data = GSS)
+summary(a1)
+TukeyHSD(a1, conf.level = 0.90)
+
+# Chi-square
+chisq.test(tally(marital_status ~ general_happiness, data = GSS)) # independence
+chisq.test(tally(~general_happiness, data = GSS), p = c(0.14, 0.55, 0.30, 0.01)) # GoF
+```
+
+## Probability
+
+```{r}
+pnorm(1.96, lower.tail = FALSE) # normal distribution function
+qnorm(0.25, mean = 100, sd = 5) # normal quantile function
+```
+
+
