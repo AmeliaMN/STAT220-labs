@@ -30,11 +30,11 @@ Let's load the example dataset I have for this course, `GSS_clean.csv`. It shoul
 
 Quantitative variables are those that encode some sort of continuous numeric range, with a multitude of possible values. We often talk about integer variables (just the whole numbers, like 1, 3, 10, 1000, etc) and more generic numeric variables (which may have long decimals, like 3.141593).
 
-What variables in this dataset are categorical? How can you tell?
+What variables in this dataset are quantitative? How can you tell?
 
 ## Visualization for quantitative variables
 
-There are a number of ways to visualize one categorical variable: histograms, density plots, and boxplots are all common ways. We'll see how to make all three. 
+There are a number of ways to visualize one quantitative variable: histograms, density plots, and boxplots are all common ways. We'll see how to make all three. 
 
 We are once again generating graphics in the tidy R syntax. This means we use the main function  `ggplot()`, and it needs at least one argument, the name of the dataset. Try running `ggplot(GSS)` and see what the result is. 
 
@@ -42,7 +42,7 @@ We are once again generating graphics in the tidy R syntax. This means we use th
 # write code here
 ```
 
-Just like for categorical variables, if want an interesting plot, we need to use the `+` operator to add on a "geometric object" (`geom_`) to tell R what kind of plot we want. Let's start with a `geom_histogram()` to make a histogram. Inside the `geom_` function, we use the `aes()` function (short for "aesthetics") and tell R how to map between a variable in our dataset and a variable in a plot. Here's an example:
+Just like for quantitative variables, if want an interesting plot, we need to use the `+` operator to add on a "geometric object" (`geom_`) to tell R what kind of plot we want. Let's start with a `geom_histogram()` to make a histogram. Inside the `geom_` function, we use the `aes()` function (short for "aesthetics") and tell R how to map between a variable in our dataset and a variable in a plot. Here's an example:
 
 ```{r}
 ggplot(GSS) + geom_histogram(aes(x = number_of_hours_worked_last_week))
@@ -92,10 +92,10 @@ ggplot(GSS) + geom_boxplot(aes(y = number_of_hours_worked_last_week, x = marital
 
 Does this plot make sense?
 
-Note: you can only make side-by-side boxplots if the $x$ variable is categorical. If R thinks your variable is **not** categorical, you may need to wrap the `factor()` function around your variable. 
+Note: you can only make side-by-side boxplots if the $x$ variable is categorical. If R thinks your variable is **not** categorical, you may need to wrap the `as_factor()` function around your variable. 
 
 ```{r}
-ggplot(GSS) + geom_boxplot(aes(y = number_of_hours_worked_last_week, x = factor(marital_status)))
+ggplot(GSS) + geom_boxplot(aes(y = number_of_hours_worked_last_week, x = as_factor(marital_status)))
 ```
 
 What changed here?
@@ -103,7 +103,7 @@ What changed here?
 
 ## Summary statistics for quantitative variables
 
-There are many summary statistics we can calculate for quantitative variables. Here are some, and their correspoding R functions:
+There are many summary statistics we can calculate for quantitative variables. Here are some, and their corresponding R functions:
 
 - mean `mean()`
 - median `median()`
@@ -178,17 +178,3 @@ GSS %>%
   pull(number_of_hours_worked_last_week) %>%
   fivenum()
 ```
-
-### Detecting outliers
-
-Our rule of thumb for detecting outliers is 1.5*IQR. Let's apply that to the `number_of_hours_worked_last_week` dataset. 
-
-Since we saw the lower hinge for this dataset was 35, the upper hinge was 50, and the IQR was 15, we can use R as a calculator to find, 
-
-```{r}
-35 - 1.5 * 15
-50 + 1.5 * 15
-```
-
-So anyone working less than 12.5 hours a week or more than 72.5 hours a week are outliers. Are there any outliers? How can you tell?
-

@@ -10,13 +10,12 @@ output:
 
 ## Setup and packages
 
-We use three packages in this course: `Lock5Data`, `mosaic` and `ggformula`. To load a package, you use the `library()` function, wrapped around the name of a package. I've put the code to load one package into the chunk below. Add the other two you need. 
+We use three packages in this course: `Lock5Data`, `tidyverse` and `infer`. To load a package, you use the `library()` function, wrapped around the name of a package. I've put the code to load one package into the chunk below. Add the other two you need. 
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, error = TRUE)
 library(Lock5Data)
-library(tidyverse)
-library(infer)
+# put in the other two packages you need here
 ```
 
 ## Loading in data
@@ -24,7 +23,7 @@ library(infer)
 Let's load the example dataset I have for this course, `GSS_clean.csv`. It should be inside the `data` folder in your RStudio Cloud. We'll use the `read_csv()` function to read in the data. 
 
 ```{r data-load}
-GSS <- read_csv("data/GSS_clean.csv")
+# this is where data-loading code goes
 ```
 
 ## Data visualization for two quantitative variables
@@ -37,7 +36,7 @@ To make our visualization, we will use the `ggplot()` function, with our data in
 
 ```{r}
 ggplot(GSS) +
-  geom_point(aes(x = highest_year_of_school_completed, y = highest_year_school_completed_spouse))
+  geom_point(aes(x = highest_year_school_completed_spouse, y = highest_year_of_school_completed))
 ```
 
 As with our plots in the last lab, we get a warning message about missing values being removed. 
@@ -50,18 +49,18 @@ One way to quantify the strength and direction of the relationship is with corre
 
 ```{r}
 GSS %>%
-  summarize(correlation = cor(x = highest_year_of_school_completed, y = highest_year_school_completed_spouse))
+  summarize(correlation = cor(y = highest_year_of_school_completed, 
+                              x = highest_year_school_completed_spouse))
 ```
 
-Much like with our other summary statistics, this gives an `NA` value, because there are `NA` values in one or more of the variables in the dataset. We could `drop_na()` on those two variables, but in this case it might make sense to just add another argument to our `cor()` function. We'd like to use "complete observations" (those where there is a value for both `highest_year_of_school_completed` and `highest_year_school_completed_spouse`), so we add `use = "complete.obs"` to our function arguments. 
+Much like with our other summary statistics, this gives an `NA` value, because there are `NA` values in one or more of the variables in the dataset. We can use `drop_na()` on those two variables,
 
 ```{r}
 GSS %>%
+  drop_na(highest_year_of_school_completed, highest_year_school_completed_spouse) %>%
   summarize(correlation = cor(
-    x = highest_year_of_school_completed,
-    y = highest_year_school_completed_spouse,
-    use = "complete.obs"
-  ))
+    y = highest_year_of_school_completed,
+    x = highest_year_school_completed_spouse))
 ```
 
 ## Linear models
@@ -81,7 +80,8 @@ m1 <- lm(highest_year_of_school_completed ~ highest_year_school_completed_spouse
 When we run this code, nothing prints out. But, a new object should appear in our RStudio Environment pane. Now, we can run R functions on that model object. The most useful one is `summary()`,
 
 ```{r}
-summary(m1)
+m1 %>%
+  summary()
 ```
 
 The same model coefficients are shown here, but there is also a lot more information about things like the $R^2$ value. 
@@ -102,7 +102,7 @@ Let's apply that to this model:
 Models are also useful for prediction. There are more programmatic ways to do prediction in R, but for now I recommend you just use R as a big calculator. Let's see what the model would predict for a person whose spouse had completed 12 years of school (high school):
 
 ```{r}
-5.84740 + 0.59403 * 12
+
 ```
 
 Does that make sense?

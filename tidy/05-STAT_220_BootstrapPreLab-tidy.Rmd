@@ -35,7 +35,7 @@ GSS <- GSS %>%
 
 ## Recall: visualization and summary statistics for one quantitative variable
 
-In lab 2, we talked about doing Exploratory Data Analysis (EDA) for one quantitative variable. See if you can create a histogram of the `highest_year_of_school_completed` variable. 
+In lab 3, we talked about doing Exploratory Data Analysis (EDA) for one quantitative variable. See if you can create a histogram of the `highest_year_of_school_completed` variable. 
 
 Hints:
 

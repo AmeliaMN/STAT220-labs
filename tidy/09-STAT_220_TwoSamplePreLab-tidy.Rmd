@@ -1,0 +1,187 @@
+---
+title: 'Inference for two samples pre-lab: tidy'
+author: "Professor McNamara"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+---
+
+## Setup and packages
+
+We use three packages in this course: `Lock5Data`, `tidyverse` and `infer`. To load a package, you use the `library()` function, wrapped around the name of a package. I've put the code to load one package into the chunk below. Add the other two you need. 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+library(Lock5Data)
+# put in the other two packages you need here
+```
+
+## Loading in data
+
+As usual, we'll load the example data, `GSS_clean.csv`. It should be inside the `data` folder in your RStudio Cloud. We'll use the `read_csv()` function to read in the data. 
+
+```{r data-load}
+GSS <- read_csv("data/GSS_clean.csv")
+```
+
+I'm not going to drop NA values here, because we're using lots of different variables in the dataset as we go along. But, we'll want to stick `drop_na()` code into some of our pipelines. 
+
+## Inference for two samples
+
+This lab talks about "inference for two samples"-- in other words, doing inference on two proportions, or on two means. Like usual, we'll be using distributional approximations (either the normal distribution, or the t-distribution, depending on the parameter we're studying), and performing our main inferential tasks (confidence intervals and hypothesis tests). 
+
+## Difference of proportions
+
+To do inference for a difference of proportions, we approximate using a normal distribution. We need a way to compute the standard error, and the formula is different based on whether we're doing a confidence interval or a hypothesis test.
+
+For two proportions, in a confidence interval
+$$
+SE = \sqrt{\frac{\hat{p}_1(1-\hat{p}_1)}{n_1} + \frac{\hat{p}_2(1-\hat{p}_2)}{n_2}}
+$$
+
+For two proportion, in a hypothesis test
+
+$$
+SE=\sqrt{\frac{\hat{p}(1-\hat{p})}{n_1}+\frac{\hat{p}(1-\hat{p})}{n_2}}
+$$
+Where $\hat{p}$ is the pooled proportion. 
+
+
+
+### Hypothesis test for two proprtions
+Let's test to see if two proportions are different. In this case, I'd like to see whether the proportion of people who said marijuana should be made legal is different, based on whether the person is self employed or works for somebody else.
+
+How can we write out the hypotheses we're testing?
+
+Let's start by finding our observed statistic. This goes back to the lab about analysis for categorical variables. 
+
+```{r}
+
+```
+
+As with inference for single samples, we can either use convenience functions in R or "do it by hand" by using R as a big calculator. Because it is much simpler, I will show the convenience functions. 
+
+Because we're doing inference about proportions right now, we use the `prop_test()` function. 
+
+```{r}
+GSS %>% 
+  prop_test(response = should_marijuana_be_made_legal, 
+            explanatory = self_emp_or_works_for_somebody, 
+            alternative = "two-sided")
+```
+
+I have to specify the alternative (the options are "two-sided", "greater" or "less"), but I no longer have to specify a null proportion to test against. (Why?)
+
+I get a message when I run this code, which tells me about what R is doing by default. I can change the default if I want to,
+
+```{r}
+GSS %>% 
+  prop_test(response = should_marijuana_be_made_legal, 
+            explanatory = self_emp_or_works_for_somebody, 
+            alternative = "two-sided")
+```
+
+What is our generic conclusion? What is our conclusion in context? 
+
+### Confidence interval for two proportions
+
+We could also make a confidence interval for a difference of two proportions. This actually uses exactly the same code as before,
+
+```{r}
+
+```
+
+But, we focus on a different part of the output. 
+
+How do we interpret this confidence interval? Does the confidence interval agree with the result of the hypothesis test? 
+
+If we wanted to, we could also make the confidence level different by specifying `conf_level`. 
+
+```{r}
+
+```
+
+
+## Inference for a difference of means
+
+To do inference for a difference of means, we approximate using a t-distribution. We need a way to compute the standard error, but the formula is not different between confidence intervals and hypothesis tests.
+
+$$
+SE = \sqrt{\frac{s_1^2}{n_1}+\frac{s_2^2}{n_2}}
+$$
+Again, we can either use R as a big calculator or we can use functions. 
+
+### Hypothesis test for a difference in means
+Let's perform a hypothesis test. We want to know if the mean number of years of school completed is different between people born in the US and those born outside the US. 
+
+How would we write out our hypotheses?
+
+Again, let's start with our point estimate. This goes back to the lab about quantitative variables, but it needs another step. 
+
+```{r}
+GSS %>%
+  group_by(born_in_us) %>%
+  # something you know about
+```
+
+To do inference, we will use the `t_test()` function. 
+
+```{r}
+GSS %>%
+  t_test(response = highest_year_of_school_completed, 
+         explanatory = born_in_us, 
+         alternative = "two-sided")
+```
+
+Again, we need to specify an alternative, but no longer a `mu` value, because by default we're checking if those means are the same. We can also get that message to go away by being more specific,
+
+```{r}
+GSS %>%
+  t_test(response = highest_year_of_school_completed, 
+         explanatory = born_in_us, 
+         alternative = "two-sided")
+```
+
+What do we conclude at the 5% level? The 10% level?
+
+### Confidence interval for a difference of means
+
+Let's also do a confidence interval. Again, the code is basically the same, but we focus on a different part of the output,
+
+```{r}
+
+```
+
+How can we interpret that confidence interval? 
+
+
+
+## Inference for paired data
+
+Finally, we want to think about paired data. There are many ways to do this in R, but the easiest is to use a variable of *differences*, and then do inference on that variable. Some datasets come with this difference already included, but other times you will need to compute it yourself. 
+
+In this case, we're going to look at average education between GSS participants' parents. This survey is assuming heterosexual parents, which means that a person's mother and father are "naturally paired." If we want to see if the mean level of education is different between mothers and fathers, we should really make a new variable of the differences and do inference on that. 
+
+```{r}
+GSS <- GSS %>%
+  mutate(diff = highest_year_school_completed_father - highest_year_school_completed_mother)
+```
+
+Now, we can do inference just as we would for a single mean, starting with finding the point estimate,
+
+```{r}
+
+```
+
+And then, using code from the inference for a single mean lab. Here's the code we had that week, see if you can modify it to do inference on this new variable:
+
+```{r}
+GSS %>%
+  t_test(response = number_of_hours_worked_last_week, 
+         alternative = "two-sided", mu = 40)
+```
+
+What did we need to change? What is our conclusion? 
+

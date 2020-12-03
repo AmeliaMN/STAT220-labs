@@ -1,0 +1,169 @@
+---
+title: 'Inference for a single mean pre-lab: tidy'
+author: "Professor McNamara"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+---
+
+We use three packages in this course: `Lock5Data`, `tidyverse` and `infer`. To load a package, you use the `library()` function, wrapped around the name of a package. I've put the code to load one package into the chunk below. Add the other two you need. 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+library(Lock5Data)
+# put in the other two packages you need here
+```
+
+## Loading in data
+
+As usual, we'll load the example data, `GSS_clean.csv`. It should be inside the `data` folder in your RStudio Cloud. We'll use the `read_csv()` function to read in the data. 
+
+```{r data-load}
+GSS <- read_csv("data/GSS_clean.csv")
+```
+
+## Missing data
+
+Let's make our lives easier by dropping NA values for the variable we'll be considering today,
+
+```{r}
+GSS <- GSS %>%
+  drop_na(number_of_hours_worked_last_week)
+```
+
+
+## Inference
+
+Like last week, we're once again going to do inference using distributional approximations. 
+
+Today, we'll cover inference for a single mean. 
+
+When we're doing inference about a single mean, we approximate using the student's T distribution. In order to use this distribution, we need a formula to approximate the standard error. For one mean, we get to use the same standard error calculation in both a confidence interval and a hypothesis test,
+
+$$
+SE_{\bar{x}}=\frac{s}{\sqrt{n}}
+$$
+
+We can only use this formula (and the T distribution) for inference if the conditions for inference are met. What are those conditions?
+
+
+
+## One mean
+
+For this lab, we'll be considering the variable `number_of_hours_worked_last_week`. Say we wanted to know if the true mean number of hours worked in a week is different than 40. We could write out our null and alternative hypotheses,
+
+$$
+H_0: \mu = 40 \\
+H_A: \mu\neq 40
+$$
+
+Then, we can find our point estimate (otherwise known as our sample statistic, or sample mean). See if you can find the point estimate:
+
+```{r}
+
+```
+
+Okay, so that's not exactly 40. But, we need to use statistics to determine if it is significantly different. That's what hypothesis testing can help us with. 
+
+## Hypothesis testing for one mean
+
+Let's use the `t_test()` function to do a hypothesis test.  
+
+```{r}
+GSS %>%
+  t_test(response = number_of_hours_worked_last_week, alternative = "two-sided", mu = 40)
+```
+
+Notice that I once again have to specify the alternative (the options are "two-sided", "greater" or "less") and the null mu I'm testing against. 
+
+What is our generic conclusion here?
+
+What does that mean in context? 
+
+### Confidence interval for one mean
+
+Okay, so our hypothesis test tells us that we have evidence that the mean is different than 40 hours. But, we might also want to know what some other reasonable values we could have observed. That's what a confidence interval helps us determine. 
+
+Again, I could use `t_test()` to help me,
+
+```{r}
+GSS %>% 
+  t_test(response = number_of_hours_worked_last_week, conf_int = TRUE)
+```
+
+How can we interpret this confidence interval? 
+
+
+
+## Appendix-- doing it "by hand"
+
+Obviously, the `t_test()` function helps us do these type of inferential tasks quickly! If we wanted to, we could do the work "by hand," using R as a calculator. 
+
+### Hypothesis test by hand
+
+The first thing we would need is a t-value, which is our observed mean minus our null mean over the standard error, 
+
+$$
+t = \frac{\bar{x}-x_0}{SE}
+$$
+and we'd need to use the appropriate formula for the standard error, 
+
+$$
+SE_{\bar{x}}=\frac{s}{\sqrt{n}}
+$$
+
+We could build a data pipeline to use R as a calculator to find the standard error
+
+```{r}
+GSS %>%
+  summarize(
+    mean = mean(number_of_hours_worked_last_week),
+    sd = sd(number_of_hours_worked_last_week),
+    n = n()
+  ) %>%
+  mutate(se = sd / sqrt(n)) 
+```
+
+And even extend the pipeline to then find the t-value and p-value,
+
+```{r}
+GSS %>%
+  summarize(
+    mean = mean(number_of_hours_worked_last_week),
+    sd = sd(number_of_hours_worked_last_week),
+    n = n()
+  ) %>%
+  mutate(se = sd / sqrt(n)) %>%
+  mutate(t_stat = (mean - 40) / se) %>%
+  mutate(pvalue = 2 * pt(t_stat, df = n - 1, lower.tail = FALSE))
+```
+
+
+### Confidence intervals by hand
+
+To do a confidence interval, we could do a slightly different data pipeline, 
+
+```{r}
+GSS %>%
+  summarize(
+    mean = mean(number_of_hours_worked_last_week),
+    sd = sd(number_of_hours_worked_last_week),
+    n = n()
+  ) %>%
+  mutate(
+    se = sd / sqrt(n),
+    critical_t = qt(0.975, df = 1380),
+    me = critical_t * se
+  ) %>%
+  mutate(low = mean - me, high = mean + me)
+```
+
+To compute a confidence interval, we need a critical t-value. With the normal distribution, you might have a critical z-value memorized (it's 1.96 for a 95\% confidence interval), but the t-distribution is more complicated. It requires you to put in the degrees of freedom to find a critical value. 
+
+```{r}
+qt(0.975, df = 1380)
+```
+
+I'm using that 0.975 again, and put in 1380 as my degrees of freedom because there were 1381 rows in my dataset. 
