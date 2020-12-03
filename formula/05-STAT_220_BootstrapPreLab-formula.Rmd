@@ -18,11 +18,6 @@ library(Lock5Data)
 # put in the other two packages you need here
 ```
 
-Another piece of setup you may want to do is set the option to remove NA values when you're computing summary statistics. 
-
-```{r}
-options(na.rm = TRUE)
-```
 
 ## Loading in data
 
@@ -49,6 +44,8 @@ Now, try to find the mean of that same variable. The function name is what you w
 ```{r}
 # write code here
 ```
+
+(You may need to add `na.rm = TRUE` to the end to get a number.)
 
 So, the average number of years of school the people in this dataset have completed is 13.7. We might want to give an interval for our estimate, rather than just a point estimate. Enter...
 
@@ -111,7 +108,8 @@ Just one bootstrap sample isn't that interesting. In order to make an interval, 
 Let's do that here.
 
 ```{r}
-boot <- do(1000) * mean(~highest_year_of_school_completed, data = resample(GSS))
+boot <- do(1000) * mean(~highest_year_of_school_completed, 
+                        data = resample(GSS), na.rm = TRUE)
 ```
 
 How many observations does that dataset have? How many variables? 

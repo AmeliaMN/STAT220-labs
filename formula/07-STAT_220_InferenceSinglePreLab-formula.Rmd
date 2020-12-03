@@ -18,11 +18,6 @@ library(Lock5Data)
 # put in the other two packages you need here
 ```
 
-Another piece of setup you may want to do is set the option to remove NA values when you're computing summary statistics. 
-
-```{r}
-options(na.rm = TRUE)
-```
 
 ## Loading in data
 

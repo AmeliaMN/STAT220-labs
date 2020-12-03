@@ -18,11 +18,6 @@ library(Lock5Data)
 # put in the other two packages you need here
 ```
 
-Another piece of setup you may want to do is set the option to remove NA values when you're computing summary statistics. 
-
-```{r}
-options(na.rm = TRUE)
-```
 
 ## Loading in data
 
@@ -42,9 +37,11 @@ We can compute the observed sample statistics,
 
 ```
 
+(You may need to add `na.rm = TRUE` to your code to get it to work.)
+
 We can even use the `diff()` function to tell us the difference between these two numbers
 ```{r}
-diff(mean(number_of_hours_worked_last_week ~ self_emp_or_works_for_somebody, data = GSS))
+diff(mean(number_of_hours_worked_last_week ~ self_emp_or_works_for_somebody, data = GSS, na.rm = TRUE))
 ```
 
 Those means **look** different to me, but we need to use statistics to be sure. So, let's perform a hypothesis test. Step one is hypothesizing. 
@@ -69,7 +66,7 @@ The process of randomization is to create what the world would look like if the 
 We can use the `shuffle()` function to help us with this. We want to shuffle just one variable, while leaving the other one alone. Let's start by trying this one time.
 
 ```{r}
-one_randomization <- mean(number_of_hours_worked_last_week ~ shuffle(self_emp_or_works_for_somebody), data = GSS)
+one_randomization <- mean(number_of_hours_worked_last_week ~ shuffle(self_emp_or_works_for_somebody), data = GSS, na.rm = TRUE)
 one_randomization
 diff(one_randomization)
 ```
@@ -93,7 +90,7 @@ Just one randomization sample isn't that interesting. In order to make a distrib
 Let's do that here.
 
 ```{r}
-randomization <- do(1000) * diff(mean(number_of_hours_worked_last_week ~ shuffle(self_emp_or_works_for_somebody), data = GSS))
+randomization <- do(1000) * diff(mean(number_of_hours_worked_last_week ~ shuffle(self_emp_or_works_for_somebody), data = GSS, na.rm = TRUE))
 ```
 
 How many observations does that dataset have? How many variables? 
@@ -142,7 +139,6 @@ So, 98\% of the data is less than 2.74. That's not exactly what we need. Let's c
 ```
 
 What do we conclude, at a $\alpha=0.05$ level?
-
 
 
 How would this change if we were doing a one-sided test?

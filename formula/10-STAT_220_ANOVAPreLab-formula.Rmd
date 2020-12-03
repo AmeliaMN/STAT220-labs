@@ -18,12 +18,6 @@ library(Lock5Data)
 # put in the other two packages you need here
 ```
 
-Another piece of setup you may want to do is set the option to remove NA values when you're computing summary statistics. 
-
-```{r}
-options(na.rm = TRUE)
-```
-
 ## Loading in data
 
 As usual, we'll load the example data, `GSS_clean.csv`. It should be inside the `data` folder in your RStudio Cloud. We'll use the `read.csv()` function to read in the data. 
@@ -72,6 +66,8 @@ How can we check those conditions?
 ```{r}
 
 ```
+
+You may need to use `na.rm = TRUE` in order to get your summary statistics to appear. 
 
 Now that we've ensured our conditions are met, we can use the `aov()` command. Much like the `lm()` command, it works best if you save the result from `aov()` into a named R object. 
 
