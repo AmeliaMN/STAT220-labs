@@ -1,7 +1,7 @@
 ---
 title: "All the R you need for STAT 220 - tidy"
 author: "Professor McNamara"
-date: "Spring 2020"
+date: "Fall 2020"
 output: html_document
 ---
 
@@ -136,13 +136,14 @@ GSS %>%
 m1 <- lm(highest_year_of_school_completed ~ highest_year_school_completed_spouse,
   data = GSS
 )
-summary(m1) # model summary
+m1 %>%
+  summary() # model summary
 
-predict(m1,
+m1 %>% predict(
   newdata = data.frame(highest_year_school_completed_spouse = 9),
   interval = "confidence"
 )
-predict(m1,
+m1 %>% predict(
   newdata = data.frame(highest_year_school_completed_spouse = 9),
   interval = "prediction"
 )
@@ -159,27 +160,24 @@ boot <- GSS %>%
 
 # one proportion
 GSS %>%
-  chisq_test(
+  prop_test(
     response = self_emp_or_works_for_somebody,
-    explanatory = NULL, p = c(0.1, 0.9)
+    explanatory = NULL, 
+    alternative = "greater", p = 0.1
   )
-
-GSS %>%
-  specify(response = self_emp_or_works_for_somebody, success = "Self-employed") %>%
-  calculate(stat = "prop") %>%
-  get_confidence_interval()
 
 # two proportions
 GSS %>%
-  chisq_test(
-    response = should_marijuana_be_made_legal,
-    explanatory = self_emp_or_works_for_somebody
-  )
+  prop_test(response = should_marijuana_be_made_legal, 
+            explanatory = self_emp_or_works_for_somebody, 
+            order = c("Self-employed", "Someone else"))
 
 # one mean
 GSS %>%
   drop_na(born_in_us) %>%
-  t_test(response = highest_year_of_school_completed, mu = 12, alternative = "greater")
+  t_test(response = highest_year_of_school_completed, 
+         explanatory = NULL,
+         mu = 12, alternative = "greater")
 
 # two means
 GSS %>%
@@ -191,8 +189,10 @@ GSS %>%
 
 # ANOVA
 a1 <- aov(Age ~ marital_status, data = GSS)
-summary(a1)
-TukeyHSD(a1, conf.level = 0.90) # differences
+a1 %>% 
+  summary()
+a1 %>% 
+  TukeyHSD(conf.level = 0.90) # differences
 
 # Chi-square
 GSS %>%
