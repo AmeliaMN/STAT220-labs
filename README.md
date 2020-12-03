@@ -6,22 +6,23 @@ In Spring 2020, I had the first opportunity to teach R labs at St Thomas, and wa
 
 Of course, the teaching materials I used in the pre-labs could not be completely standardized. However, I made every effort to make them similar. For the first lab, I wrote the tidyverse version first, and then modified the document to create a corresponding formula version. The next week, I switched the order, writing the formula version first and modifying for tidyverse. 
 
-There are 11 labs included here:
-- lab 1: EDA for categorical variables: bar charts, tables, two-way tables
-- lab 2: EDA for one numeric variable: histograms, boxplots, measures of central tendancy and spread
-- lab 3: EDA for two numeric variables: scatterplots, correlation and regression 
-- lab 4: probability (only one version of the lab, no syntactic differences for tidyverse/formula)
+There are 12 labs included here:
+- lab 1: Introduction to R and RStudio, describing data
+- lab 2: EDA for categorical variables: bar charts, tables, two-way tables
+- lab 3: EDA for one numeric variable: histograms, boxplots, measures of central tendancy and spread
+- lab 4: EDA for two numeric variables: scatterplots, correlation and regression 
 - lab 5: bootstrap for confidence intervals
 - lab 6: randomization for hypothesis tests
-- lab 7: inference for a single variable using distributional approximations (t- and z-tests, single proportion and single mean)
-- lab 8: inference for regression 
+- lab 7: inference for a single proportion using distributional approximation (z-tests)
+- lab 8: inference for a single mean using distributional approximation (t-tests)
 - lab 9: inference for two variables using distributional approximations (t- and z-tests, difference of proportions, difference of means, paired data)
 - lab 10: ANOVA
 - lab 11: Chi-square for goodness of fit and independence
+- lab 12: inference for regression
 
-With the exception of lab 4, each lab folder contains two documents, a pre-lab for the formula syntax and a pre-lab for the tidyverse syntax. For labs 5-11, there are YouTube videos that accompany each of the pre-labs. YouTube videos for the formula labs are [here](https://www.youtube.com/playlist?list=PLik6fAQnSI90QbcUrjizKEn-eFbGM3MkP) and for the tidyverse labs are [here](https://www.youtube.com/playlist?list=PLik6fAQnSI91S_rKq5T9KRgjHG-dClFzN). 
+There are YouTube videos that accompany each of the pre-labs. YouTube videos for the formula labs are [here](https://www.youtube.com/playlist?list=PLik6fAQnSI90bHK9fapPS-eZCUhgROh6S) and for the tidyverse labs are [here](https://www.youtube.com/playlist?list=PLik6fAQnSI93eBVuAONFBCVdOd7VFhKQX). 
 
-Each lab uses the same example dataset, `GSS-clean.csv`, included in the directory `data`. There are also two "all the R you need" sheets, one for formula and one for tidyverse. 
+Each pre-lab uses the same example dataset, `GSS-clean.csv`, included in the directory `data`. There are also two "all the R you need" sheets, one for formula and one for tidyverse. 
 
 The primarily content of this repo are the pre-lab exercises, which often contain blanks that need to be filled in by students. I have many other materials associated with this course, including completed pre-labs, blank lab assignments, and completed lab assignment keys. If you are an instructor or researcher who is interested in these materials, please contact me. 
 
