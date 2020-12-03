@@ -1,0 +1,45 @@
+---
+title: 'Describing data pre-lab: formula'
+author: "Professor McNamara"
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: '3'
+  html_document:
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+---
+
+We use three packages in this course: `Lock5Data`, `mosaic` and `ggformula`. To load a package, you use the `library()` function, wrapped around the name of a package. I've put the code to load one package into the chunk below. Add the other two you need. 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+library(Lock5Data)
+# put in the other two packages you need here
+```
+
+## Loading in data
+
+Let's load the example dataset I have for this course, `GSS_clean.csv`. It should be inside the `data` folder in your RStudio Cloud. We'll use the `read.csv()` function to read in the data. Here is a chunk where we will put the data loading code. 
+
+```{r data-load}
+# this is where data-loading code goes
+```
+
+This dataset comes from the General Social Survey (GSS), which is collected by NORC at the University of Chicago. It is a random sample of households from the United States, and has been running since 1972, so it is very useful for studying trends in American life. The data I've given you is a subset of the questions asked in the survey, and I've done a little bit of data cleaning to make it easier to use. But, there are still some messy aspects (which we'll discover as we analyze it further throughout this class!). 
+
+## Looking at data
+
+While most of what we will be doing in this class is programming, we can use buttons in RStudio cloud to get a first look at our data. 
+
+1. What are the cases in the dataset?
+2. How many cases are there? 
+3. Is there any missing data? How can you tell? 
+4. What are the variables?
+5. Name a couple of variables that are quantitative. Name a couple that are categorical. 
+6. Pick out an observation to write about. What are some characteristics of this observation?
+7. Is this a random sample?
+8. Is this an experiment or an observational study? 
+9. Can we use these data to determine cause-and-effect relationships?
+10. What is a question we could answer using this data?
