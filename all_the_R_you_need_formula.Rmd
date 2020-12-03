@@ -1,7 +1,7 @@
 ---
 title: "All the R you need for STAT 220 - formula"
 author: "Professor McNamara"
-date: "Spring 2020"
+date: "Fall 2020"
 output: html_document
 ---
 
