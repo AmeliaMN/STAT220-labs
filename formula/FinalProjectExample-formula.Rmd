@@ -1,0 +1,77 @@
+---
+title: "Self-employed People Work About the Same Number of Hours as Those Employed by Someone Else"
+author: "Amelia McNamara, University of St Thomas"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, message= FALSE, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.height = 2, fig.width = 4, message = FALSE)
+library(mosaic)
+library(ggformula)
+```
+
+```{r data-load, message=FALSE}
+GSS <- read.csv("data/GSS_clean.csv")
+```
+
+## Background
+
+The data in this study comes from the General Social Survey, (GSS), a survey collected yearly by NORC at the University of Chicago. It is a random sample of households from the United States. The GSS has been running since 1972, although we are considering data specifically from 2014 in this analysis. The GSS contains information about many aspects of American life, so it is useful for studying trends about the US. 
+ 
+## Methods
+
+In this analysis, we will be performing a two-sample t-test to compare the mean number of hours worked by people who are self-employed and those who work for someone else. 
+
+
+## Results
+
+To start, we considered the distribution of each of the two variables of interest separately. First, the histogram of number of hours worked last week, 
+
+```{r}
+gf_histogram(~number_of_hours_worked_last_week, data = GSS, binwidth = 5, 
+             title = "Number of hours worked last week", xlab = "Hours")
+```
+
+The distribution looks relatively normal, with a large spike around 40 hours. This makes sense, because 40 hours a week is a standard, full-time workweek. The minimum of the distribution is 0 hours, and the maximum is more than 80. Working 80 hours a week is a lot, but it is technically possible (there are 189 hours in a week!), so we didn't remove any data here.
+
+We do get a warning, because there are 967 rows with missing values. We need to consider whether there are issues of non-response bias that may affect our results. 
+
+Then, we consider who a person works for-- themselves (self-employed) or someone else. 
+
+```{r}
+gf_bar(~self_emp_or_works_for_somebody, data = GSS, 
+       title = "Employer status", xlab = "")
+```
+
+As we might expect, most people work for someone else, but a small percentage are self-employed. 
+
+We'd like to know whether the number of hours worked per week is different between these two groups. We begin by doing some exploratory analysis, with side-by-side boxplots,
+
+```{r}
+gf_boxplot(number_of_hours_worked_last_week ~ self_emp_or_works_for_somebody, data = GSS, 
+           title = "Hours worked by employer status", xlab = "", ylab = "Hours")
+```
+
+It's difficult to tell if there is a significant difference between the groups here. The medians look close to one another, but the box for the self-employed people is much larger, showing a bigger variability in the middle 50%. However, the people who work for someone else had many more outliers on both the high and low end. 
+
+We can also compare the means,
+
+```{r}
+mean(number_of_hours_worked_last_week ~ self_emp_or_works_for_somebody, data = GSS, na.rm = TRUE)
+```
+
+These means look different, but they are both close to 40 hours per week. 
+
+We need to do a statistical analysis to determine if there is a significant difference. We will use a theoretical t distribution to do the hypothesis test, so we need to ensure the conditions are met. We can assume the data has independence, because this is a nationally-representative survey. The data looks relatively normal, and both group sizes are considerably larger than 30. So, we can use a theoretical t distribution to approximate the sampling distribution.
+
+```{r}
+t.test(number_of_hours_worked_last_week ~ self_emp_or_works_for_somebody, data = GSS)
+```
+
+## Conclusion
+
+From the result of the t test, we can see that there is no significant difference in the mean number of hours worked per week between self-employed people and those who work for someone else. Our test statistic was -1.78, which resulted in a p-value of 0.076, which is above our $\alpha$-level cutoff of 0.05. We fail to reject our null hypothesis, and conclude we have no evidence to suggest the mean number of hours worked per week is different between self-employed people and those who work for someone else. This is an interesting result, because people may have believed self-employed people worked many fewer hours per week, but the average is about the same. 
+
+Of course, we need to keep in mind that many of the observations in our original dataset were missing information about either the number of hours a person worked, or their employer status. 

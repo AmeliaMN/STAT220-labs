@@ -28,7 +28,7 @@ GSS <- read_csv("data/GSS_clean.csv")
 
 ## Regression
 
-We've talked about regression before, in lab 3. However, that was just regression as a descriptive technique. Now we'll be going further to do inference about regression, using a distributional approximation. 
+We've talked about regression before, in lab 4. However, that was just regression as a descriptive technique. Now we'll be going further to do inference about regression, using a distributional approximation. 
 
 Let's consider the same relationship as we did before, predicting `highest_year_of_school_completed` (our response) using `highest_year_school_completed_spouse` (our explanatory variable). First, we should do a visualization of this relationship. 
 
@@ -84,5 +84,15 @@ predict(m1, newdata = data.frame(highest_year_school_completed_spouse = 12), int
 
 Let's interpret those two intervals
 
+
+## Multiple regression
+
+You can go even further with regression, adding additional predictors into the model. Let's say we want to predict the number of years of schooling someone has by using the highest year of school their spouse completed **and** the number of brothers and sisters they have. 
+
+```{r}
+
+```
+
+Now, we have to add another phrase to our interpretation sentence. 
 
 

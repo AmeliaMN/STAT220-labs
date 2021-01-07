@@ -1,11 +1,14 @@
 ---
-title: 'Inference for many means (ANOVA) - formula'
+title: "Inference for many means (ANOVA) - formula"
 author: "Professor McNamara"
 output:
+  pdf_document:
+    toc: yes
+    toc_depth: '3'
   html_document:
-    toc: true
+    toc: yes
     toc_depth: 3
-    toc_float: true
+    toc_float: yes
 ---
 
 ## Setup and packages
