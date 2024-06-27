@@ -29,7 +29,7 @@ GSS <- read_csv("data/GSS_clean.csv")
 To make our lives easier, let's just drop NA values for the variable we're talking about today,
 
 ```{r}
-GSS <- GSS %>%
+GSS <- GSS |>
   drop_na(highest_year_of_school_completed)
 ```
 
@@ -51,7 +51,7 @@ Now, try to find the mean of that same variable.
 
 Hints:
 
-- we start with the name of the dataset and a pipe, `%>%`
+- we start with the name of the dataset and a pipe, `|>`
 - the next line has a `summarize()` command
 - inside the `summarize()` you need a summary statistic function
 - the name of the summary statistic function is what you would think
@@ -70,8 +70,8 @@ In order to take a bootstrap sample, we need to specify which variable we are in
 
 
 ```{r}
-bootstrap_sample <- GSS %>%
-  specify(response = highest_year_of_school_completed) %>%
+bootstrap_sample <- GSS |>
+  specify(response = highest_year_of_school_completed) |>
   generate(reps = 1, type = "bootstrap")
 ```
 
@@ -102,17 +102,17 @@ Setting the seed means that the psuedo-random-number-generator in R will always 
 
 ```{r}
 set.seed(42)
-bootstrap_sample <- GSS %>%
-  specify(response = highest_year_of_school_completed) %>%
+bootstrap_sample <- GSS |>
+  specify(response = highest_year_of_school_completed) |>
   generate(reps = 1, type = "bootstrap")
 ggplot(bootstrap_sample) + geom_histogram(aes(x = highest_year_of_school_completed), binwidth = 2)
-bootstrap_sample <- GSS %>%
-  specify(response = highest_year_of_school_completed) %>%
+bootstrap_sample <- GSS |>
+  specify(response = highest_year_of_school_completed) |>
   generate(reps = 1, type = "bootstrap")
 ggplot(bootstrap_sample) + geom_histogram(aes(x = highest_year_of_school_completed), binwidth = 2)
 set.seed(42)
-bootstrap_sample <- GSS %>%
-  specify(response = highest_year_of_school_completed) %>%
+bootstrap_sample <- GSS |>
+  specify(response = highest_year_of_school_completed) |>
   generate(reps = 1, type = "bootstrap")
 ggplot(bootstrap_sample) + geom_histogram(aes(x = highest_year_of_school_completed), binwidth = 2)
 ```
@@ -124,9 +124,9 @@ Just one bootstrap sample isn't that interesting. In order to make an interval, 
 Let's do that here.
 
 ```{r}
-boot <- GSS %>%
-  specify(response = highest_year_of_school_completed) %>%
-  generate(reps = 1000, type = "bootstrap") %>%
+boot <- GSS |>
+  specify(response = highest_year_of_school_completed) |>
+  generate(reps = 1000, type = "bootstrap") |>
   calculate(stat = "mean")
 ```
 

@@ -29,7 +29,7 @@ GSS <- read_csv("data/GSS_clean.csv")
 Let's make our lives easier by dropping NA values for the variable we'll be considering today,
 
 ```{r}
-GSS <- GSS %>%
+GSS <- GSS |>
   drop_na(self_emp_or_works_for_somebody)
 ```
 
@@ -81,7 +81,7 @@ H_A:p > 0.1
 $$
 Then, we could use R to help us perform a hypothesis test.
 ```{r}
-GSS %>% 
+GSS |> 
   prop_test(response = self_emp_or_works_for_somebody, 
             alternative = "greater", p = 0.1)
 ```
@@ -99,7 +99,7 @@ Okay, so it's not significantly great than 10%. But, what are some other reasona
 Again, I could use `prop_test()` to help me,
 
 ```{r}
-GSS %>% 
+GSS |> 
   prop_test(response = self_emp_or_works_for_somebody, conf_int = TRUE)
 ```
 
@@ -147,13 +147,13 @@ Why did I need to do 1 minus the number?
 We could also build this into a long data pipeline,  
 
 ```{r}
-GSS %>%
-  group_by(self_emp_or_works_for_somebody) %>%
-  summarize(n = n()) %>%
-  mutate(prop = n / sum(n), total = sum(n)) %>%
-  filter(self_emp_or_works_for_somebody == "Self-employed") %>%
-  mutate(se = sqrt(prop * (1 - prop) / total)) %>%
-  mutate(z_stat = (prop - 0.1) / se) %>%
+GSS |>
+  group_by(self_emp_or_works_for_somebody) |>
+  summarize(n = n()) |>
+  mutate(prop = n / sum(n), total = sum(n)) |>
+  filter(self_emp_or_works_for_somebody == "Self-employed") |>
+  mutate(se = sqrt(prop * (1 - prop) / total)) |>
+  mutate(z_stat = (prop - 0.1) / se) |>
   mutate(pvalue = pnorm(z_stat, lower.tail = FALSE))
 ```
 
@@ -189,15 +189,15 @@ Now, we can compute our confidence interval by hand:
 We could also do this in a longer (but perhaps more readable?) way in a data pipeline,
 
 ```{r}
-GSS %>%
-  group_by(self_emp_or_works_for_somebody) %>%
-  summarize(n = n()) %>%
-  mutate(prop = n / sum(n), total = sum(n)) %>%
-  filter(self_emp_or_works_for_somebody == "Self-employed") %>%
+GSS |>
+  group_by(self_emp_or_works_for_somebody) |>
+  summarize(n = n()) |>
+  mutate(prop = n / sum(n), total = sum(n)) |>
+  filter(self_emp_or_works_for_somebody == "Self-employed") |>
   mutate(
     se = sqrt(prop * (1 - prop) / total),
     critical_z = 1.96,
     me = critical_z * se
-  ) %>%
+  ) |>
   mutate(low = prop - me, high = prop + me)
 ```

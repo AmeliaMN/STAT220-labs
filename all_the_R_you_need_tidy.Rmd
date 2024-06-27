@@ -55,44 +55,44 @@ ggplot(GSS) + geom_point(aes(
 
 ```{r}
 # one categorical
-GSS %>%
-  group_by(marital_status) %>%
-  summarize(n = n()) %>%
+GSS |>
+  group_by(marital_status) |>
+  summarize(n = n()) |>
   mutate(prop = n / sum(n))
 
 # two categorical
-GSS %>%
-  group_by(marital_status, general_happiness) %>%
-  summarize(n = n()) %>%
+GSS |>
+  group_by(marital_status, general_happiness) |>
+  summarize(n = n()) |>
   mutate(prop = n / sum(n))
 
 # one numeric
-GSS %>%
+GSS |>
   summarize(
     mean = mean(highest_year_of_school_completed, na.rm = TRUE),
     median = median(highest_year_of_school_completed, na.rm = TRUE)
   )
 
-GSS %>%
-  drop_na(highest_year_of_school_completed) %>%
+GSS |>
+  drop_na(highest_year_of_school_completed) |>
   summarize(
     mean = mean(highest_year_of_school_completed),
     median = median(highest_year_of_school_completed)
   )
 
-GSS %>%
-  drop_na(highest_year_of_school_completed) %>%
+GSS |>
+  drop_na(highest_year_of_school_completed) |>
   summarize(sd(highest_year_of_school_completed))
 
-GSS %>%
-  drop_na(highest_year_of_school_completed) %>%
+GSS |>
+  drop_na(highest_year_of_school_completed) |>
   summarize(
     range = max(highest_year_of_school_completed) - min(highest_year_of_school_completed),
     IQR = IQR(highest_year_of_school_completed)
   ) # range and IQR
 
-GSS %>%
-  drop_na(highest_year_of_school_completed) %>%
+GSS |>
+  drop_na(highest_year_of_school_completed) |>
   summarize(
     min = min(highest_year_of_school_completed),
     lower_hinge = quantile(highest_year_of_school_completed, .25),
@@ -101,11 +101,11 @@ GSS %>%
     max = max(highest_year_of_school_completed)
   ) # five number summary
 
-GSS %>%
-  pull(highest_year_of_school_completed) %>%
+GSS |>
+  pull(highest_year_of_school_completed) |>
   fivenum() # five number summary
 
-GSS %>%
+GSS |>
   summarize(correlation = cor(
     x = highest_year_of_school_completed,
     y = highest_year_school_completed_spouse,
@@ -117,15 +117,15 @@ GSS %>%
 
 ```{r}
 # fix NA issue
-GSS <- GSS %>%
+GSS <- GSS |>
   drop_na(highest_year_of_school_completed)
 
 # turn character to numeric
-GSS <- GSS %>%
+GSS <- GSS |>
   mutate(Age = parse_number(age_of_respondent))
 
 # filter observations
-GSS %>%
+GSS |>
   filter(Age > 91)
 ```
 
@@ -136,30 +136,30 @@ GSS %>%
 m1 <- lm(highest_year_of_school_completed ~ highest_year_school_completed_spouse,
   data = GSS
 )
-m1 %>%
+m1 |>
   summary() # model summary
 
-m1 %>% predict(
+m1 |> predict(
   newdata = data.frame(highest_year_school_completed_spouse = 9),
   interval = "confidence"
 )
-m1 %>% predict(
+m1 |> predict(
   newdata = data.frame(highest_year_school_completed_spouse = 9),
   interval = "prediction"
 )
 
 # bootstrapping
-bootstrap_sample <- GSS %>%
-  specify(response = Age) %>%
+bootstrap_sample <- GSS |>
+  specify(response = Age) |>
   generate(reps = 1, type = "bootstrap")
 
-boot <- GSS %>%
-  specify(response = Age) %>%
-  generate(reps = 1000, type = "bootstrap") %>%
+boot <- GSS |>
+  specify(response = Age) |>
+  generate(reps = 1000, type = "bootstrap") |>
   calculate(stat = "mean")
 
 # one proportion
-GSS %>%
+GSS |>
   prop_test(
     response = self_emp_or_works_for_somebody,
     explanatory = NULL, 
@@ -167,21 +167,21 @@ GSS %>%
   )
 
 # two proportions
-GSS %>%
+GSS |>
   prop_test(response = should_marijuana_be_made_legal, 
             explanatory = self_emp_or_works_for_somebody, 
             order = c("Self-employed", "Someone else"))
 
 # one mean
-GSS %>%
-  drop_na(born_in_us) %>%
+GSS |>
+  drop_na(born_in_us) |>
   t_test(response = highest_year_of_school_completed, 
          explanatory = NULL,
          mu = 12, alternative = "greater")
 
 # two means
-GSS %>%
-  drop_na(born_in_us) %>%
+GSS |>
+  drop_na(born_in_us) |>
   t_test(
     response = highest_year_of_school_completed,
     explanatory = born_in_us, order = c("No", "Yes")
@@ -189,16 +189,16 @@ GSS %>%
 
 # ANOVA
 a1 <- aov(Age ~ marital_status, data = GSS)
-a1 %>% 
+a1 |> 
   summary()
-a1 %>% 
+a1 |> 
   TukeyHSD(conf.level = 0.90) # differences
 
 # Chi-square
-GSS %>%
+GSS |>
   chisq_test(response = marital_status, explanatory = general_happiness) # independence
 
-GSS %>%
+GSS |>
   chisq_test(response = general_happiness, p = c(0.14, 0.56, 0.30)) # GoF
 ```
 

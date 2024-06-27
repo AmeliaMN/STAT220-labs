@@ -117,14 +117,14 @@ We use these functions inside the `summarize()` command to find summary statisti
 Let's see how that works.
 
 ```{r}
-GSS %>%
+GSS |>
   summarize(mean(number_of_hours_worked_last_week))
 ```
 
 There are a couple weird things here. The first is that the name of the variable in my new, mini dataset is `mean(number_of_hours_worked_last_week)`. The other is that the mean is just `NA`. Let's address these one by one
 
 ```{r}
-GSS %>%
+GSS |>
   summarize(mean_hours = mean(number_of_hours_worked_last_week))
 ```
 
@@ -135,8 +135,8 @@ Now let's fix the `NA` issue. The mean is being reported as `NA` because of all 
 There are a couple ways to fix the issue, but perhaps the easiest is to use the `drop_na()` function in our pipeline,
 
 ```{r}
-GSS %>%
-  drop_na(number_of_hours_worked_last_week) %>%
+GSS |>
+  drop_na(number_of_hours_worked_last_week) |>
   summarize(mean_hours = mean(number_of_hours_worked_last_week))
 ```
   
@@ -149,8 +149,8 @@ Now, try finding the median `number_of_brothers_and_sisters`.
 If we want to compute multiple summary statistics, we can add them to our `summarize()` command, separated with commas. 
 
 ```{r}
-GSS %>%
-  drop_na(number_of_hours_worked_last_week) %>%
+GSS |>
+  drop_na(number_of_hours_worked_last_week) |>
   summarize(
     range = max(number_of_hours_worked_last_week) - min(number_of_hours_worked_last_week),
     IQR = IQR(number_of_hours_worked_last_week)
@@ -160,8 +160,8 @@ GSS %>%
 If we wanted to compute a five-number summary, we could code it ourselves,
 
 ```{r}
-GSS %>%
-  drop_na(number_of_hours_worked_last_week) %>%
+GSS |>
+  drop_na(number_of_hours_worked_last_week) |>
   summarize(
     min = min(number_of_hours_worked_last_week),
     lower_hinge = quantile(number_of_hours_worked_last_week, .25),
@@ -174,7 +174,7 @@ GSS %>%
 Or, we could take the easy route and use the `fivenum()` function. The `fivenum()` function expects a single variable, not a dataset, so we need to add one more verb to our pipeline-- `pull()`. 
 
 ```{r}
-GSS %>%
-  pull(number_of_hours_worked_last_week) %>%
+GSS |>
+  pull(number_of_hours_worked_last_week) |>
   fivenum()
 ```

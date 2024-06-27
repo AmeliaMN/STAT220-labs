@@ -48,7 +48,7 @@ Does this plot show a positive association, negative association, or no associat
 One way to quantify the strength and direction of the relationship is with correlation. To find this, we use the `cor()` function inside our `summarize()` in a data pipeline.  
 
 ```{r}
-GSS %>%
+GSS |>
   summarize(correlation = cor(y = highest_year_of_school_completed, 
                               x = highest_year_school_completed_spouse))
 ```
@@ -56,8 +56,8 @@ GSS %>%
 Much like with our other summary statistics, this gives an `NA` value, because there are `NA` values in one or more of the variables in the dataset. We can use `drop_na()` on those two variables,
 
 ```{r}
-GSS %>%
-  drop_na(highest_year_of_school_completed, highest_year_school_completed_spouse) %>%
+GSS |>
+  drop_na(highest_year_of_school_completed, highest_year_school_completed_spouse) |>
   summarize(correlation = cor(
     y = highest_year_of_school_completed,
     x = highest_year_school_completed_spouse))
@@ -80,7 +80,7 @@ m1 <- lm(highest_year_of_school_completed ~ highest_year_school_completed_spouse
 When we run this code, nothing prints out. But, a new object should appear in our RStudio Environment pane. Now, we can run R functions on that model object. The most useful one is `summary()`,
 
 ```{r}
-m1 %>%
+m1 |>
   summary()
 ```
 

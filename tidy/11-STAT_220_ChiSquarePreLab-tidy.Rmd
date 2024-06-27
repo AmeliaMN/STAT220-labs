@@ -45,10 +45,10 @@ $$
 Let's start by looking at a summary of the data. 
 
 ```{r}
-GSS %>%
-  drop_na(general_happiness) %>%
-  group_by(general_happiness) %>%
-  summarize(n = n()) %>%
+GSS |>
+  drop_na(general_happiness) |>
+  group_by(general_happiness) |>
+  summarize(n = n()) |>
   mutate(prop = n/sum(n))
 ```
 
@@ -58,7 +58,7 @@ Are the conditions for inference met?
 Now, we can use the `chisq_test()` function to do the test!
 
 ```{r}
-GSS %>%
+GSS |>
   chisq_test(response = general_happiness)
 ```
 
@@ -78,9 +78,9 @@ $$
 Again, we should check to ensure the conditions are met before proceeding. 
 
 ```{r}
-GSS %>%
-  drop_na(marital_status, general_happiness) %>%
-  group_by(marital_status, general_happiness) %>%
+GSS |>
+  drop_na(marital_status, general_happiness) |>
+  group_by(marital_status, general_happiness) |>
   summarize(n = n())
 ```
 
@@ -88,7 +88,7 @@ GSS %>%
 Now, we can use `chisq_test()` to do the test!
 
 ```{r}
-GSS %>%
+GSS |>
   chisq_test()
 ```
 

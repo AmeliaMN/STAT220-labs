@@ -66,7 +66,7 @@ As with inference for single samples, we can either use convenience functions in
 Because we're doing inference about proportions right now, we use the `prop_test()` function. 
 
 ```{r}
-GSS %>% 
+GSS |> 
   prop_test(response = should_marijuana_be_made_legal, 
             explanatory = self_emp_or_works_for_somebody, 
             alternative = "two-sided")
@@ -77,7 +77,7 @@ I have to specify the alternative (the options are "two-sided", "greater" or "le
 I get a message when I run this code, which tells me about what R is doing by default. I can change the default if I want to,
 
 ```{r}
-GSS %>% 
+GSS |> 
   prop_test(response = should_marijuana_be_made_legal, 
             explanatory = self_emp_or_works_for_somebody, 
             alternative = "two-sided")
@@ -121,15 +121,15 @@ How would we write out our hypotheses?
 Again, let's start with our point estimate. This goes back to the lab about quantitative variables, but it needs another step. 
 
 ```{r}
-GSS %>%
-  group_by(born_in_us) %>%
+GSS |>
+  group_by(born_in_us) |>
   # something you know about
 ```
 
 To do inference, we will use the `t_test()` function. 
 
 ```{r}
-GSS %>%
+GSS |>
   t_test(response = highest_year_of_school_completed, 
          explanatory = born_in_us, 
          alternative = "two-sided")
@@ -138,7 +138,7 @@ GSS %>%
 Again, we need to specify an alternative, but no longer a `mu` value, because by default we're checking if those means are the same. We can also get that message to go away by being more specific,
 
 ```{r}
-GSS %>%
+GSS |>
   t_test(response = highest_year_of_school_completed, 
          explanatory = born_in_us, 
          alternative = "two-sided")
@@ -165,7 +165,7 @@ Finally, we want to think about paired data. There are many ways to do this in R
 In this case, we're going to look at average education between GSS participants' parents. This survey is assuming heterosexual parents, which means that a person's mother and father are "naturally paired." If we want to see if the mean level of education is different between mothers and fathers, we should really make a new variable of the differences and do inference on that. 
 
 ```{r}
-GSS <- GSS %>%
+GSS <- GSS |>
   mutate(diff = highest_year_school_completed_father - highest_year_school_completed_mother)
 ```
 
@@ -178,7 +178,7 @@ Now, we can do inference just as we would for a single mean, starting with findi
 And then, using code from the inference for a single mean lab. Here's the code we had that week, see if you can modify it to do inference on this new variable:
 
 ```{r}
-GSS %>%
+GSS |>
   t_test(response = number_of_hours_worked_last_week, 
          alternative = "two-sided", mu = 40)
 ```

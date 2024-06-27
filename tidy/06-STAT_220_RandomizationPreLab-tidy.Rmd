@@ -27,7 +27,7 @@ GSS <- read_csv("data/GSS_clean.csv")
 To make our lives easier, let's just drop NA values for the variables we're talking about today,
 
 ```{r}
-GSS <- GSS %>%
+GSS <- GSS |>
   drop_na(
     number_of_hours_worked_last_week,
     self_emp_or_works_for_somebody
@@ -66,10 +66,10 @@ The process of randomization is to create what the world would look like if the 
 We can use the same sort of data pipeline we did for the bootstrap to help us with this. We need to specify our response and explanatory variables, set our hypothesis, and the generate permutation samples. "Permute" means to mix up the values of one variable, while while leaving the other one alone. Let's start by trying this one time.
 
 ```{r}
-one_randomization <- GSS %>%
+one_randomization <- GSS |>
   specify(response = number_of_hours_worked_last_week, 
-          explanatory = self_emp_or_works_for_somebody) %>%
-  hypothesize(null = "independence") %>%
+          explanatory = self_emp_or_works_for_somebody) |>
+  hypothesize(null = "independence") |>
   generate(reps = 1, type = "permute")
 ```
 
@@ -78,8 +78,8 @@ How many observations does this new data set have? How many variables?
 
 We can once again compute the grouped means, 
 ```{r}
-one_randomization %>%
-  group_by(self_emp_or_works_for_somebody) %>%
+one_randomization |>
+  group_by(self_emp_or_works_for_somebody) |>
   summarize(mean = mean(number_of_hours_worked_last_week))
 ```
 
@@ -102,11 +102,11 @@ Just one randomization sample isn't that interesting. In order to make a distrib
 Let's do that here. Once again, to avoid saving many datasets, we will add another verb to our pipeline, `calculate()`. 
 
 ```{r}
-randomization <- GSS %>%
+randomization <- GSS |>
   specify(response = number_of_hours_worked_last_week, 
-          explanatory = self_emp_or_works_for_somebody) %>%
-  hypothesize(null = "independence") %>%
-  generate(reps = 1000, type = "permute") %>%
+          explanatory = self_emp_or_works_for_somebody) |>
+  hypothesize(null = "independence") |>
+  generate(reps = 1000, type = "permute") |>
   calculate(stat = "diff in means", 
             order = c("Self-employed", "Someone else"))
 ```
