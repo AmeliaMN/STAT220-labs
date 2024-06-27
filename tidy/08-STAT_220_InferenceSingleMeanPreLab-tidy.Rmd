@@ -29,7 +29,7 @@ GSS <- read_csv("data/GSS_clean.csv")
 Let's make our lives easier by dropping NA values for the variable we'll be considering today,
 
 ```{r}
-GSS <- GSS %>%
+GSS <- GSS |>
   drop_na(number_of_hours_worked_last_week)
 ```
 
@@ -72,7 +72,7 @@ Okay, so that's not exactly 40. But, we need to use statistics to determine if i
 Let's use the `t_test()` function to do a hypothesis test.  
 
 ```{r}
-GSS %>%
+GSS |>
   t_test(response = number_of_hours_worked_last_week, alternative = "two-sided", mu = 40)
 ```
 
@@ -89,7 +89,7 @@ Okay, so our hypothesis test tells us that we have evidence that the mean is dif
 Again, I could use `t_test()` to help me,
 
 ```{r}
-GSS %>% 
+GSS |> 
   t_test(response = number_of_hours_worked_last_week, conf_int = TRUE)
 ```
 
@@ -117,26 +117,26 @@ $$
 We could build a data pipeline to use R as a calculator to find the standard error
 
 ```{r}
-GSS %>%
+GSS |>
   summarize(
     mean = mean(number_of_hours_worked_last_week),
     sd = sd(number_of_hours_worked_last_week),
     n = n()
-  ) %>%
+  ) |>
   mutate(se = sd / sqrt(n)) 
 ```
 
 And even extend the pipeline to then find the t-value and p-value,
 
 ```{r}
-GSS %>%
+GSS |>
   summarize(
     mean = mean(number_of_hours_worked_last_week),
     sd = sd(number_of_hours_worked_last_week),
     n = n()
-  ) %>%
-  mutate(se = sd / sqrt(n)) %>%
-  mutate(t_stat = (mean - 40) / se) %>%
+  ) |>
+  mutate(se = sd / sqrt(n)) |>
+  mutate(t_stat = (mean - 40) / se) |>
   mutate(pvalue = 2 * pt(t_stat, df = n - 1, lower.tail = FALSE))
 ```
 
@@ -146,17 +146,17 @@ GSS %>%
 To do a confidence interval, we could do a slightly different data pipeline, 
 
 ```{r}
-GSS %>%
+GSS |>
   summarize(
     mean = mean(number_of_hours_worked_last_week),
     sd = sd(number_of_hours_worked_last_week),
     n = n()
-  ) %>%
+  ) |>
   mutate(
     se = sd / sqrt(n),
     critical_t = qt(0.975, df = 1380),
     me = critical_t * se
-  ) %>%
+  ) |>
   mutate(low = mean - me, high = mean + me)
 ```
 

@@ -85,7 +85,7 @@ Try making a barchart that shows both the `govt_or_private_employee` and `self_e
 
 The other part of Exploratory Data Analysis (EDA) is making summary statistics. For a categorical variable, this means making frequency tables and relative frequency tables. Let's explore how to do that. 
 
-For this piece, we will be using an operator called "the pipe", which is written as `%>%` (if you know other programming languages, you may think of `|` as the pipe, but that gets used to mean "or" in R). I think of the pipe as an arrow that points in the direction my data is flowing through a data pipeline. 
+For this piece, we will be using an operator called "the pipe", which is written as `|>` (if you know other programming languages, you may think of `|` as the pipe, but that gets used to mean "or" in R). I think of the pipe as an arrow that points in the direction my data is flowing through a data pipeline. 
 
 We will use the pipe to string together three main R functions:
 
@@ -98,7 +98,7 @@ These functions can be mixed and matched in many orders to create a multitude of
 Let's start with a short data pipeline.
 
 ```{r}
-GSS %>%
+GSS |>
   summarize(n = n())
 ```
 
@@ -107,7 +107,7 @@ What does this code tell us?
 We can add another piece to the pipeline to make it more interesting.
 
 ```{r}
-GSS %>%
+GSS |>
   # another step
   summarize(n = n())
 ```
@@ -117,9 +117,9 @@ What does this code give us?
 Finally, we might want to add one more piece to the pipeline to create a relative frequency table,
 
 ```{r}
-GSS %>%
+GSS |>
   # another step
-  summarize(n = n()) %>%
+  summarize(n = n()) |>
   # one final step
 ```
 
@@ -128,9 +128,9 @@ GSS %>%
 We can extend this to two categorical variables by adding a second variable into our `group_by()` code. Let's make a relative frequency table showing the relationship between `marital_status` and `general_happiness`. 
 
 ```{r}
-GSS %>%
-  group_by(marital_status) %>% # change one thing on this line
-  summarize(n = n()) %>%
+GSS |>
+  group_by(marital_status) |> # change one thing on this line
+  summarize(n = n()) |>
   mutate(prop = n/sum(n))
 ```
 
