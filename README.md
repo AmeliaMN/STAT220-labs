@@ -26,5 +26,5 @@ Each pre-lab uses the same example dataset, `GSS-clean.csv`, included in the dir
 
 The primarily content of this repo are the pre-lab exercises, which often contain blanks that need to be filled in by students. I have many other materials associated with this course, including completed pre-labs, blank lab assignments, and completed lab assignment keys. If you are an instructor or researcher who is interested in these materials, please contact me. 
 
-UPDATE June 2024: I have changed the magrittr pipe, `%>%` to the base R pipe, `|>` in this code. When students saw the documents they used the magrittr pipe, but `|>` has become standard. If you want to see the original version with `%>%`, see [version 1.0.0](releases/tag/v1.0.0). 
+UPDATE June 2024: I have changed the magrittr pipe, `%>%` to the base R pipe, `|>` in this code. When students saw the documents they used the magrittr pipe, but `|>` has become standard. If you want to see the original version with `%>%`, see [version 1.0.0](https://github.com/AmeliaMN/STAT220-labs/releases/tag/v1.0.0). 
 
